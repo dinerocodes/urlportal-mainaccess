@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: #1a1a1a;
+        }
+
+        header {
+            height: auto;
+            /* let header grow with content */
+            padding: 1rem 0.5rem;
+            /* smaller padding around logo */
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+        }
+
+        .brand img {
+            height: 110px;
+            /* smaller logo height */
+            width: auto;
+            /* maintain aspect ratio */
+            display: block;
+        }
+
+        /* Language selector */
+
+        header div:last-child {
+            font-size: 14px;
+            color: #012169;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Responsive: small screens */
+
+        @media (max-width: 480px) {
+            header {
+                justify-content: center;
+                /* center the logo */
+                padding: 1rem;
+                /* slightly smaller height for mobile */
+            }
+            header div:last-child {
+                display: none;
+                /* hide the language selector */
+            }
+        }
+
+        main {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-wrapper {
+            text-align: center;
+            width: 360px;
+            margin-top: -6rem;
+        }
+
+        .login-wrapper h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .login-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            padding: 24px;
+            text-align: left;
+        }
+
+        .top-bar {
+            height: 6px;
+            background: linear-gradient(to right, #c8102e 50%, #012169 50%);
+            border-radius: 6px 6px 0 0;
+            margin: -24px -24px 20px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 36px 10px 12px;
+            border-radius: 6px;
+            border: 1px solid #999;
+            font-size: 14px;
+        }
+
+        .input-group i {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            /* vertically center checkbox and label */
+            gap: 8px;
+            /* space between checkbox and label */
+            font-size: 13px;
+            margin-bottom: 18px;
+            justify-content: flex-start;
+            /* align everything to the left */
+        }
+
+        .checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            /* remove default browser margin */
+            vertical-align: middle;
+            /* align with text */
+        }
+
+        button {
+            width: 100%;
+            background: #012169;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 20px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #00174f;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 13px;
+        }
+
+        .links a {
+            color: #0066cc;
+            text-decoration: none;
+            display: block;
+            margin-top: 6px;
+        }
+
+        .app-section {
+            margin-top: 40px;
+        }
+
+        .app-section button {
+            background: white;
+            color: #012169;
+            border: 1px solid #012169;
+        }
+
+        .error {
+            color: #c8102e;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .footer-section {
+            text-align: center;
+            /* center the heading and table */
+        }
+
+        .footer-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: left;
+            /* heading still left-aligned */
+        }
+
+        .footer-table {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* 3 columns */
+            gap: 0;
+            /* no gaps, borders will separate */
+            margin: 0 auto 2rem;
+            /* center the table horizontally */
+            max-width: 800px;
+            /* optional, restrict width */
+            border: 1px solid #ccc;
+            /* outer border for the table */
+        }
+
+        .footer-item {
+            font-size: 12px;
+            color: #666;
+            border: 1px solid #ccc;
+            /* border for each cell */
+            padding: 0.75rem 1rem;
+            /* space inside each cell */
+            text-align: center;
+            /* center text inside cells */
+        }
+
+        /* Responsive: stack items on mobile */
+
+        @media (max-width: 768px) {
+            .footer-table {
+                grid-template-columns: 1fr;
+                /* single column on mobile */
+                max-width: 100%;
+            }
+            .footer-item {
+                text-align: left;
+                /* align left on mobile */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">
+            <img src="./logo.png" alt="">
+        </div>
+        <div><i class="fa-solid fa-globe"></i> English</div>
+    </header>
+
+    <main>
+        <div class="login-wrapper">
+            <h1>Log in to Online Banking</h1>
+
+            <div class="login-card">
+                <div class="top-bar"></div>
+
+                <form id="loginForm">
+                    <label>User ID</label>
+                    <div class="input-group">
+                        <input type="text" id="userId" required />
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+
+                    <label>Password</label>
+                    <div class="input-group">
+                        <input type="password" id="password" required />
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+
+                    <div class="checkbox">
+                        <input type="checkbox" />
+                        <span>Save user ID</span>
+                    </div>
+
+
+                    <button type="submit">Log in</button>
+
+                    <div class="error" id="error">Invalid login details</div>
+                </form>
+
+                <div class="links">
+                    <a href="#">Forgot user ID/password</a>
+                    <a href="#">Security & Help</a>
+                    <a href="#">Enroll</a>
+                </div>
+            </div>
+
+            <div class="app-section">
+                <p>Stay connected with our app</p>
+                <button>Get the app</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="login-footer">
+
+        <div class="footer-section">
+            <h4>Investment and insurance products:</h4>
+            <div class="footer-table">
+                <div class="footer-item">Are Not FDIC Insured</div>
+                <div class="footer-item">Are Not Bank Guaranteed</div>
+                <div class="footer-item">May Lose Value</div>
+                <div class="footer-item">Are Not Deposits</div>
+                <div class="footer-item">Are Not Insured by Any Federal Government Agency</div>
+                <div class="footer-item">Are Not a Condition to Any Banking Service or Activity</div>
+            </div>
+        </div>
+
+        
+    </footer>
+
+
+    <script>
+        // Set the allowed username and password
+        const allowedUser = "Azguy57#"; // change to your desired username
+        const allowedPass = "19Shout!19"; // change to your desired password
+
+        document.getElementById("loginForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const user = document.getElementById("userId").value.trim();
+            const pass = document.getElementById("password").value;
+
+            // Check credentials
+            if (user === allowedUser && pass === allowedPass) {
+                // Redirect to dashboard.html if correct
+                window.location.href = "./verification.html";
+            } else {
+                // Show error message
+                const errorDiv = document.getElementById("error");
+                errorDiv.style.display = "block";
+                errorDiv.textContent = "Invalid username or password";
+            }
+        });
+    </script>
+
+
+</body>
+
+</html>

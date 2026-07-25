@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --b-red: #c41230;
+            --b-blue: #0052a5;
+            --text: #111;
+            --muted: #6d6d6d;
+            --border: #e5e5e5;
+            --bg: #f3f3f3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            padding-bottom: 78px;
+        }
+
+        /* ===== TOP BAR ===== */
+
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .top-icons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+        }
+
+        .top-icons i {
+            font-size: 18px;
+        }
+
+        .right-icons i {
+            margin-left: 14px;
+        }
+
+        /* ===== TABS ===== */
+
+        .tabs {
+            display: flex;
+            padding-left: 14px;
+        }
+
+        .tab {
+            padding: 10px 14px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .tab.active {
+            color: var(--b-red);
+            border-bottom: 3px solid var(--b-red);
+            font-weight: 600;
+        }
+
+        /* ===== SEARCH ===== */
+
+        .search {
+            margin: 10px 12px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .alert {
+            width: 20px;
+            height: 20px;
+            background: var(--b-red);
+            color: #fff;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        /* ===== CLIENT CARD ===== */
+
+        .card {
+            background: #fff;
+            margin: 8px 12px;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+        .card p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .card a {
+            color: var(--b-blue);
+            text-decoration: none;
+        }
+
+        /* ===== SECTION ===== */
+
+        .section {
+            background: #fff;
+            margin: 10px 12px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .graph-container {
+            padding: 12px 14px 16px;
+            height: 200px;
+        }
+
+        .section-header i {
+            color: #9b9b9b;
+            font-size: 14px;
+        }
+
+        /* red-blue strip */
+
+        .section-accent {
+            height: 6px;
+            background: linear-gradient(to right, #c41230 0%, #c41230 70%, #0052a5 100%);
+        }
+
+        /* header */
+
+        .section-header {
+            padding: 12px 14px;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* rows */
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            border-top: 1px solid #e6e6e6;
+        }
+
+        /* left text */
+
+        .row-left small {
+            display: block;
+            font-size: 11px;
+            color: #6d6d6d;
+            margin-bottom: 2px;
+        }
+
+        .row-left p {
+            font-size: 14px;
+            color: #111;
+        }
+
+        /* right side */
+
+        .row-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .amount {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* right column */
+
+        .row-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        /* b logo */
+
+        .b-logo {
+            height: 20px;
+            width: auto;
+        }
+
+        /* amount + chevron row */
+
+        .amount-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .amount {
+            font-weight: 600;
+            font-size: 23px;
+        }
+
+        .amount-row i {
+            font-size: 13px;
+            color: #9b9b9b;
+        }
+
+        .amount {
+            font-weight: 600;
+        }
+
+        /* ===== BOTTOM NAV ===== */
+
+        .bottom {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+        }
+
+        .nav {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            padding: 8px 0;
+            color: var(--muted);
+            text-decoration: none;
+            /* remove underline from links */
+            display: flex;
+            flex-direction: column;
+            /* icon on top, text below */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav i {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .nav.active {
+            color: var(--b-blue);
+        }
+
+        /* ===== TRANSACTION PREVIEW ===== */
+
+        .see-more {
+            font-size: 12px;
+            color: #0052a5;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .txn-preview {
+            padding: 6px 0;
+        }
+
+        .txn-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        .txn-item:last-child {
+            border-bottom: none;
+        }
+
+        .txn-left p {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .txn-left small {
+            font-size: 12px;
+            color: #6d6d6d;
+        }
+
+        .txn-right {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .txn-right.credit {
+            color: #0a7a33;
+        }
+
+        .txn-right.debit {
+            color: #c41230;
+        }
+
+        .session-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+
+        .session-box {
+
+            width: 350px;
+            background: rgba(45, 45, 45, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+
+            color: white;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, .3);
+
+            animation: sessionShow .3s ease;
+
+        }
+
+
+        .session-box h3 {
+
+            font-size: 18px;
+            margin-bottom: 12px;
+
+        }
+
+
+        .session-box p {
+
+            color: #ddd;
+            font-size: 15px;
+            line-height: 1.5;
+
+        }
+
+
+        .session-box button {
+
+            width: 100%;
+            margin-top: 20px;
+            background: none;
+            text-align: right;
+            color: rgb(76, 78, 192);
+            border: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+
+        }
+
+
+
+        @keyframes sessionShow {
+
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP -->
+    <div class="topbar">
+        <div class="top-icons">
+            <i class="fa fa-bars"></i>
+            <div class="right-icons">
+                <a href='./notification.html'>
+                    <i class="fa fa-envelope"></i>
+                </a>
+
+                <a href='../login.html' style='color: black;'>
+                    <i class="fa fa-right-from-bracket"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <a href='./dashboard.html' style='text-decoration: none;'>
+                <div class="tab">Dashboard</div>
+            </a>
+            <div class="tab active">Accounts</div>
+        </div>
+    </div>
+
+    <div class="session-popup" id="sessionPopup">
+        <div class="session-box">
+            <h3>
+                Session Timeout Warning
+            </h3>
+            <p>
+                Your online banking session will end in 2 minutes.
+                If you are still working in your online banking session,
+                choose OK to continue.
+            </p>
+            <button onclick="continueSession()">
+                OK
+            </button>
+        </div>
+
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search">
+        <i class="fa fa-search"></i>
+        <input placeholder="How can we help?">
+    </div>
+
+    <!-- BANKING -->
+    <div class="acc" style="font-size: 10px; padding: 7px; color: rgb(2, 2, 73)">
+        <h1>My Accounts</h1>
+    </div>
+    <div class="section">
+        <div class="section-accent"></div>
+
+        <div class="section-header">
+            Checkings Account
+            <i class="fa fa-chevron-up"></i>
+        </div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Advantage Plus Banking - 3432</p>
+            </div>
+
+            <div class="row-right">
+                <img src="b.png" alt="Bank of America" class="b-logo">
+                <div class="amount-row">
+                    <span class="amount">$351,482.63</span>
+                    <i class="fa fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="section">
+        <div class="section-accent"></div>
+
+        <div class="section-header">
+            Savings Account
+            <i class="fa fa-chevron-up"></i>
+        </div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Business Adv Savings -<br> 0193</p>
+            </div>
+
+            <div class="row-right">
+                <img src="b.png" alt="Bank of America" class="b-logo">
+                <div class="amount-row">
+                    <span class="amount">$1,324,819.49</span>
+                    <i class="fa fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="section">
+        <div class="section-accent"></div>
+
+        <div class="section-header">
+            Investment
+            <i class="fa fa-chevron-up"></i>
+        </div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>MERRILL</p>
+            </div>
+
+            <div class="row-right">
+                <img src="m.png" alt="Bank of America" class="b-logo">
+                <div class="amount-row">
+                    <span class="amount">$2,154,742.88</span>
+                    <i class="fa fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <!-- INVESTMENT -->
+
+
+
+    <div class="section">
+        <div class="section-header">
+            Recent Transactions
+            <span class="see-more" onclick="goToTransactions()">See more</span>
+        </div>
+
+        <div class="txn-preview" id="txnPreview"></div>
+    </div>
+
+
+
+
+    <div class="section">
+        <div class="section-header">
+            Account Balance Trend
+            <i class="fa fa-ellipsis-h"></i>
+        </div>
+
+        <div class="graph-container">
+            <canvas id="balanceChart"></canvas>
+        </div>
+    </div>
+
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom">
+        <a href="" class="nav active"><i class="fa fa-wallet"></i>Accounts</a>
+        <a class='nav' href='./pay.html'><i class="fa fa-arrows-left-right"></i>Pay & Transfer</a>
+        <a class='nav' href='./deposit.html'><i class="fa fa-check"></i>Deposit Checks</a>
+        <a class='nav' href='./setting.html'><i class="fa fa-gear"></i>Settings</a>
+    </div>
+
+
+
+
+</body>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const ctx = document.getElementById('balanceChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    data: [92000, 93500, 104800, 126000, 217213, 226900, 537213],
+                    borderColor: '#0052a5', // b blue
+                    backgroundColor: 'rgba(0,82,165,0.08)',
+                    borderWidth: 2,
+                    tension: 0.35,
+                    fill: true,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `$${ctx.parsed.y.toLocaleString()}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#6d6d6d'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: '#eeeeee'
+                        },
+                        ticks: {
+                            color: '#6d6d6d',
+                            callback: (value) => `$${value / 1000}k`
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<script>
+    const dashboardTransactions = [{
+        name: "ACH Credit – Corporate Client",
+        type: "Completed",
+        amount: 250000.00
+    },
+    {
+        name: "ACH Credit – Vendor Payment",
+        type: "Debit Card",
+        amount: 95000.00
+    },
+    {
+        name: "Business Advantage Cashback",
+        type: "Outgoing",
+        amount: 32450.22
+    },
+    {
+        name: "Business Advantage Cashback",
+        type: "Reward",
+        amount: 20982.53
+    }
+    ];
+
+    const previewContainer = document.getElementById("txnPreview");
+
+    dashboardTransactions.slice(0, 4).forEach(txn => {
+        const row = document.createElement("div");
+        row.className = "txn-item";
+
+        row.innerHTML = `
+    <div class="txn-left">
+      <p>${txn.name}</p>
+      <small>${txn.type}</small>
+    </div>
+    <div class="txn-right ${txn.amount >= 0 ? "credit" : "debit"}">
+      ${formatAmount(txn.amount)}
+    </div>
+  `;
+
+        previewContainer.appendChild(row);
+    });
+
+    function formatAmount(amount) {
+        const sign = amount >= 0 ? "+" : "−";
+        return `${sign}$${Math.abs(amount).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}`;
+    }
+
+    function goToTransactions() {
+        window.location.href = "transaction.html";
+    }
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../main.js"></script>
+
+
+</html>

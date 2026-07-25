@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Security Verification</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+
+    <style>
+        :root {
+            --b-red: #c41230;
+            --b-blue: #0052a5;
+            --text: #111;
+            --muted: #6d6d6d;
+            --border: #e5e5e5;
+            --bg: #f3f3f3;
+        }
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+
+        body {
+
+            background: var(--bg);
+            min-height: 100vh;
+
+        }
+
+
+
+        .topbar {
+
+            background: white;
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+
+        }
+
+
+        .topbar i {
+
+            font-size: 20px;
+
+        }
+
+
+
+        .container {
+
+            padding: 20px 14px;
+
+        }
+
+
+
+        .card {
+
+            background: white;
+            border-radius: 14px;
+            padding: 25px 18px;
+            text-align: center;
+
+        }
+
+
+
+        .security-icon {
+
+            width: 65px;
+            height: 65px;
+
+            margin: auto;
+
+            background: #eef5ff;
+            color: var(--b-blue);
+
+            border-radius: 50%;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 28px;
+
+        }
+
+
+
+        h2 {
+
+            margin-top: 20px;
+            font-size: 22px;
+
+        }
+
+
+
+        .description {
+
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+
+            margin-top: 10px;
+
+        }
+
+
+
+
+        .code-container {
+
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+
+            margin: 30px 0;
+
+        }
+
+
+
+        .code-input {
+
+            width: 42px;
+            height: 50px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            font-size: 22px;
+
+            outline: none;
+
+        }
+
+
+
+        .code-input:focus {
+
+            border: 2px solid var(--b-blue);
+
+        }
+
+
+
+        .verify-btn {
+
+            width: 100%;
+
+            background: var(--b-blue);
+
+            color: white;
+
+            border: none;
+
+            padding: 14px;
+
+            border-radius: 10px;
+
+            font-size: 16px;
+
+            cursor: pointer;
+
+        }
+
+
+
+        .verify-btn:hover {
+
+            opacity: .9;
+
+        }
+
+
+
+        .resend {
+
+            margin-top: 20px;
+
+            color: var(--b-blue);
+
+            font-size: 14px;
+
+            cursor: pointer;
+
+        }
+
+
+
+
+        .message {
+
+            display: none;
+
+            margin-top: 15px;
+
+            font-size: 14px;
+
+        }
+
+
+        .success {
+
+            color: green;
+
+        }
+
+
+        .error {
+
+            color: var(--b-red);
+
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="topbar">
+
+        <i class="fa fa-arrow-left"></i>
+
+    </div>
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="security-icon">
+
+                <i class="fa fa-lock"></i>
+
+            </div>
+
+            <h2>
+                Verify Your Identity
+            </h2>
+
+            <p class="description">
+
+                For your security, enter the 6-digit verification code sent to your registered mobile number.
+
+            </p>
+
+            <div class="code-container">
+
+                <input class="code-input" maxlength="1">
+
+                <input class="code-input" maxlength="1">
+
+                <input class="code-input" maxlength="1">
+
+                <input class="code-input" maxlength="1">
+
+                <input class="code-input" maxlength="1">
+
+                <input class="code-input" maxlength="1">
+
+            </div>
+            <button class="verify-btn" onclick="verifyCode()">
+
+                Continue
+
+            </button>
+
+            <div class="timer">
+                Code expires in <span id="countdown">30:00</span>
+            </div>
+
+            <div class="resend">
+                Resend Code
+            </div>
+            <p class="message" id="message"></p>
+
+        </div>
+    </div>
+
+    <script>
+
+        const inputs = document.querySelectorAll(".code-input");
+
+        // 20 valid verification codes
+        const validCodes = [
+            "389738",
+            "245781",
+            "384920",
+            "512764",
+            "638915",
+            "741258",
+            "856391",
+            "902417",
+            "135792",
+            "468135",
+            "579246",
+            "680357",
+            "791468",
+            "824680",
+            "936157",
+            "147258",
+            "258369",
+            "369147",
+            "951753",
+            "753951"
+        ];
+
+        // Auto move to next input
+        inputs.forEach((input, index) => {
+
+            input.addEventListener("input", () => {
+
+                // Only allow numbers
+                input.value = input.value.replace(/\D/g, "");
+
+                if (input.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+
+            });
+
+            input.addEventListener("keydown", (e) => {
+
+                if (e.key === "Backspace" && input.value === "" && index > 0) {
+                    inputs[index - 1].focus();
+                }
+
+            });
+
+        });
+
+
+        function verifyCode() {
+
+            let code = "";
+
+            inputs.forEach(input => {
+                code += input.value;
+            });
+
+            const message = document.getElementById("message");
+
+            if (code.length !== 6) {
+
+                message.style.display = "block";
+                message.className = "message error";
+                message.innerHTML = "Please enter the complete 6-digit verification code.";
+
+                return;
+
+            }
+
+            // Get used codes
+            let usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || [];
+
+            // Check if already used
+            if (usedCodes.includes(code)) {
+
+                message.style.display = "block";
+                message.className = "message error";
+                message.innerHTML = "This verification code is not valid.";
+
+                return;
+
+            }
+
+            // Check if code is valid
+            if (validCodes.includes(code)) {
+
+                // Save as used
+                usedCodes.push(code);
+                localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+
+                message.style.display = "block";
+                message.className = "message success";
+                message.innerHTML = "Verification successful. Redirecting...";
+
+                setTimeout(() => {
+
+                    window.location.href = "./user/dashboard.html";
+
+                }, 1500);
+
+            } else {
+
+                message.style.display = "block";
+                message.className = "message error";
+                message.innerHTML = "Invalid verification code. Please try again.";
+
+            }
+
+        }
+
+    </script>
+
+    <script>
+        // 30 minute countdown
+
+        let timeLeft = 30 * 60;
+
+        const countdown = document.getElementById("countdown");
+
+        function startCountdown() {
+
+            let timer = setInterval(() => {
+
+                let minutes = Math.floor(timeLeft / 60);
+
+                let seconds = timeLeft % 60;
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                countdown.innerHTML = minutes + ":" + seconds;
+
+                timeLeft--;
+
+                if (timeLeft < 0) {
+
+                    clearInterval(timer);
+
+                    countdown.innerHTML = "Expired";
+
+                    countdown.style.color = "#c41230";
+
+                    document.querySelector(".verify-btn").disabled = true;
+
+                    document.querySelector(".verify-btn").style.opacity = "0.5";
+
+                }
+
+            }, 1000);
+
+        }
+
+        startCountdown();
+    </script>
+
+</body>
+
+</html>

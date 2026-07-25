@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deposit Check</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        :root {
+            --b-blue: #0052a5;
+            --b-red: #c41230;
+            --text: #111;
+            --muted: #6d6d6d;
+            --border: #e6e6e6;
+            --bg: #f4f6f8;
+            --card: #ffffff;
+        }
+
+        /* RESET */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ===== HEADER ===== */
+
+        .page-header {
+            position: sticky;
+            top: 0;
+            background: var(--card);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .page-header i {
+            cursor: pointer;
+        }
+
+        /* ===== SECTION ===== */
+
+        .section {
+            background: var(--card);
+            margin: 12px;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ===== CHECK CAPTURE ===== */
+
+        .capture {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .check-box {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 13px;
+            cursor: pointer;
+            transition: border .15s, background .15s;
+        }
+
+        .check-box:hover {
+            border-color: var(--b-blue);
+            background: #f9fbfd;
+        }
+
+        .check-box i {
+            font-size: 22px;
+            margin-bottom: 6px;
+            color: var(--b-blue);
+        }
+
+        /* ===== FORM ===== */
+
+        .form {
+            padding: 16px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .select,
+        .input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .amount-input {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 12px;
+        }
+
+        .amount-input span {
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        .amount-input input {
+            border: none;
+            outline: none;
+            padding: 12px 0;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        /* ===== BUTTON ===== */
+
+        .primary-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--b-blue);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .primary-btn:hover {
+            background: #003f82;
+        }
+
+        /* ===== NOTE ===== */
+
+        .note {
+            font-size: 12px;
+            color: var(--muted);
+            padding: 0 16px 16px;
+        }
+
+        .bottom {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+        }
+
+        .nav {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            padding: 8px 0;
+            color: var(--muted);
+            text-decoration: none;
+            /* remove underline from links */
+            display: flex;
+            flex-direction: column;
+            /* icon on top, text below */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav i {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .nav.active {
+            color: var(--b-blue);
+        }
+
+        /* ===== DESKTOP ===== */
+
+        @media (min-width: 768px) {
+            body {
+                max-width: 420px;
+                margin: auto;
+            }
+        }
+
+        .session-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+
+        .session-box {
+
+            width: 350px;
+            background: rgba(45, 45, 45, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+
+            color: white;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, .3);
+
+            animation: sessionShow .3s ease;
+
+        }
+
+
+        .session-box h3 {
+
+            font-size: 18px;
+            margin-bottom: 12px;
+
+        }
+
+
+        .session-box p {
+
+            color: #ddd;
+            font-size: 15px;
+            line-height: 1.5;
+
+        }
+
+
+        .session-box button {
+
+            width: 100%;
+            margin-top: 20px;
+            background: none;
+            text-align: right;
+            color: rgb(76, 78, 192);
+            border: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+
+        }
+
+
+
+        @keyframes sessionShow {
+
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <i class="fa fa-arrow-left" onclick="history.back()"></i>
+        <span>Deposit Check</span>
+    </div>
+
+    <div class="session-popup" id="sessionPopup">
+        <div class="session-box">
+            <h3>
+                Session Timeout Warning
+            </h3>
+            <p>
+                Your online banking session will end in 2 minutes.
+                If you are still working in your online banking session,
+                choose OK to continue.
+            </p>
+            <button onclick="continueSession()">
+                OK
+            </button>
+        </div>
+
+    </div>
+
+    <!-- CAPTURE CHECK -->
+    <div class="section">
+        <div class="section-header">Take photos of your check</div>
+        <div class="capture">
+            <div class="check-box" onclick="capture('front')">
+                <i class="fa fa-camera"></i> Front of check
+            </div>
+            <div class="check-box" onclick="capture('back')">
+                <i class="fa fa-camera"></i> Back of check
+            </div>
+        </div>
+    </div>
+
+    <!-- DEPOSIT DETAILS -->
+    <div class="section">
+        <div class="section-header">Deposit details</div>
+
+        <div class="form">
+            <div class="field">
+                <label>Deposit to</label>
+                <select class="select">
+                    <option>Advantage Plus Banking - 5678</option>
+                    <option>Business Adv Savings - 3432</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Amount</label>
+                <div class="amount-input">
+                    <span>$</span>
+                    <input type="number" placeholder="0.00" />
+                </div>
+            </div>
+
+            <button class="primary-btn">Review Deposit</button>
+        </div>
+
+        <div class="note">
+            Make sure the check is endorsed and written clearly. Funds availability may vary.
+        </div>
+
+        <div class="bottom">
+            <a class='nav' href='./dashboard.html'><i class="fa fa-wallet"></i>Accounts</a>
+            <a class='nav' href='./pay.html'><i class="fa fa-arrows-left-right"></i>Pay & Transfer</a>
+            <a class="nav active"><i class="fa fa-check"></i>Deposit Checks</a>
+            <a class='nav' href='./setting.html'><i class="fa fa-gear"></i>Settings</a>
+        </div>
+    </div>
+
+    <script>
+        function capture(side) {
+            alert("Open camera for photo");
+        }
+    </script>
+
+    <script src="../main.js"></script>
+
+</body>
+
+</html>

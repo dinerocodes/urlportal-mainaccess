@@ -1,0 +1,3428 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transaction History</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    :root {
+      --b-blue: #0052a5;
+      --b-red: #c41230;
+      --b-green: #0a7a33;
+      --text: #111;
+      --muted: #6d6d6d;
+      --border: #e6e6e6;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+    }
+
+    /* RESET */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial,
+        sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* HEADER */
+
+    .page-header {
+      position: sticky;
+      top: 0;
+      background: var(--card);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    /* ACCOUNT SUMMARY */
+
+    .account-summary {
+      background: var(--card);
+      margin: 12px;
+      padding: 16px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .account-summary small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .balance {
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* TRANSACTIONS */
+
+    .transactions {
+      margin: 12px;
+      background: var(--card);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .txn {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .txn:last-child {
+      border-bottom: none;
+    }
+
+    .txn-left p {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .txn-left small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pending {
+      opacity: 0.6;
+      font-style: italic;
+    }
+
+    .txn-amount {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .credit {
+      color: var(--b-green);
+    }
+
+    .debit {
+      color: var(--b-red);
+    }
+
+    /* DESKTOP */
+
+    @media (min-width: 768px) {
+      body {
+        max-width: 420px;
+        margin: auto;
+      }
+    }
+
+    .session-popup {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(5px);
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+    }
+
+
+    .session-box {
+
+      width: 350px;
+      background: rgba(45, 45, 45, 0.95);
+      border-radius: 20px;
+      padding: 25px;
+
+      color: white;
+
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, .3);
+
+      animation: sessionShow .3s ease;
+
+    }
+
+
+    .session-box h3 {
+
+      font-size: 18px;
+      margin-bottom: 12px;
+
+    }
+
+
+    .session-box p {
+
+      color: #ddd;
+      font-size: 15px;
+      line-height: 1.5;
+
+    }
+
+
+    .session-box button {
+
+      width: 100%;
+      margin-top: 20px;
+      background: none;
+      text-align: right;
+      color: rgb(76, 78, 192);
+      border: none;
+      padding: 13px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+
+    }
+
+
+
+    @keyframes sessionShow {
+
+      from {
+        opacity: 0;
+        transform: scale(.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div class="page-header">
+    <i class="fa fa-arrow-left" onclick="history.back()"></i>
+    <span>Transaction History</span>
+  </div>
+
+  <div class="session-popup" id="sessionPopup">
+    <div class="session-box">
+      <h3>
+        Session Timeout Warning
+      </h3>
+      <p>
+        Your online banking session will end in 2 minutes.
+        If you are still working in your online banking session,
+        choose OK to continue.
+      </p>
+      <button onclick="continueSession()">
+        OK
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ACCOUNT SUMMARY -->
+  <div class="account-summary">
+    <small>Advantage Plus Banking - 5678</small>
+    <div class="balance">$1,324,819.49</div>
+  </div>
+
+  <!-- TRANSACTIONS LIST -->
+  <div class="transactions">
+
+    <!-- 2022 TRANSACTIONS -->
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Business Revenue</p>
+        <small>Dec 28, 2022</small>
+      </div>
+      <div class="txn-amount credit">+$145,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Marketplace</p>
+        <small>Dec 22, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$268.40</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Dec 15, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$91,750.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Nov 30, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$148.79</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Nov 25, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$284.15</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Nov 18, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$800.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Client Payment – Consulting</p>
+        <small>Nov 12, 2022</small>
+      </div>
+      <div class="txn-amount credit">+$18,450.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Depot</p>
+        <small>Oct 27, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$524.90</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Costco Wholesale</p>
+        <small>Oct 20, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$476.55</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer Received</p>
+        <small>Oct 12, 2022</small>
+      </div>
+      <div class="txn-amount credit">+$64,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Shell Fuel Station</p>
+        <small>Sep 29, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$96.30</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Netflix Subscription</p>
+        <small>Sep 18, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$19.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Tax Refund</p>
+        <small>Sep 10, 2022</small>
+      </div>
+      <div class="txn-amount credit">+$7,540.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Apple Services</p>
+        <small>Aug 30, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$11.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Uber Technologies</p>
+        <small>Aug 21, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$42.65</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Deposit – Investment Income</p>
+        <small>Aug 08, 2022</small>
+      </div>
+      <div class="txn-amount credit">+$23,800.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Home Depot</p>
+        <small>Jul 27, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$732.80</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Business Loan Payment</p>
+        <small>Jul 15, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$15,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer – Client Settlement</p>
+        <small>Jun 30, 2022</small>
+      </div>
+      <div class="txn-amount credit">+$89,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>CVS Pharmacy</p>
+        <small>Jun 18, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$87.55</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>May 29, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Southwest Airlines</p>
+        <small>May 20, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$715.60</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Tax Refund</p>
+        <small>Apr 25, 2022</small>
+      </div>
+      <div class="txn-amount credit">+$5,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Adobe Creative Cloud</p>
+        <small>Apr 12, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$54.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Target</p>
+        <small>Mar 30, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$221.47</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Business Insurance Refund</p>
+        <small>Mar 15, 2022</small>
+      </div>
+      <div class="txn-amount credit">+$2,750.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Microsoft 365 Subscription</p>
+        <small>Feb 18, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$99.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Client Invoice Payment</p>
+        <small>Jan 28, 2022</small>
+      </div>
+      <div class="txn-amount credit">+$37,400.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Utility Bill Payment</p>
+        <small>Jan 15, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$1,245.20</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Jan 05, 2022</small>
+      </div>
+      <div class="txn-amount debit">−$88,650.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Corporate Client</p>
+        <small>Dec 29, 2021 • 8:52 AM</small>
+      </div>
+      <div class="txn-amount credit">+$185,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer – International Client</p>
+        <small>Dec 21, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$312,450.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Dec 17, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$91,250.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Business</p>
+        <small>Dec 12, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$1,824.35</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Business Revenue</p>
+        <small>Dec 08, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$126,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Rent</p>
+        <small>Dec 01, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$22,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Nov 24, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$486.40</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Corporate Card – Walmart</p>
+        <small>Nov 16, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$782.19</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer – Investment Partner</p>
+        <small>Nov 05, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$225,800.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Withdrawal</p>
+        <small>Oct 28, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Business Insurance Premium</p>
+        <small>Oct 18, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$5,985.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Vendor Payment</p>
+        <small>Oct 10, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$96,750.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Sep 30, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$90,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Microsoft 365 Subscription</p>
+        <small>Sep 22, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$319.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Corporate Client</p>
+        <small>Sep 12, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$178,900.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>FedEx Shipping Services</p>
+        <small>Aug 29, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$428.60</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Web Services</p>
+        <small>Aug 18, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$1,245.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer – Overseas Client</p>
+        <small>Aug 03, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$247,600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Utilities</p>
+        <small>Jul 25, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$1,418.35</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Client Settlement</p>
+        <small>Jul 12, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$109,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Jun 30, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$89,400.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Corporate Card – Apple Business</p>
+        <small>Jun 18, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$3,249.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Commercial Payment</p>
+        <small>May 28, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$155,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Withdrawal</p>
+        <small>May 14, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$800.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Adobe Creative Cloud</p>
+        <small>Apr 27, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$79.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer – Business Partner</p>
+        <small>Apr 08, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$272,300.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Corporate Card – Best Buy Business</p>
+        <small>Mar 25, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$2,890.50</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Annual Contract</p>
+        <small>Feb 19, 2021</small>
+      </div>
+      <div class="txn-amount credit">+$198,250.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Equipment Purchase</p>
+        <small>Jan 29, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$6,540.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Jan 08, 2021</small>
+      </div>
+      <div class="txn-amount debit">−$87,900.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Corporate Client</p>
+        <small>Dec 28, 2020 • 9:14 AM</small>
+      </div>
+      <div class="txn-amount credit">+$145,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer – International Partner</p>
+        <small>Dec 22, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$280,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Dec 18, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$87,450.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Corporate Card – Amazon Business</p>
+        <small>Dec 15, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$2,185.40</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Vendor Settlement</p>
+        <small>Dec 11, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$68,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Lease Payment</p>
+        <small>Dec 05, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$19,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Nov 29, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$486.75</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Business</p>
+        <small>Nov 22, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$914.30</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Corporate Revenue</p>
+        <small>Nov 18, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$198,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Withdrawal</p>
+        <small>Nov 10, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Business Insurance Premium</p>
+        <small>Oct 30, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$5,640.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer – Client Payment</p>
+        <small>Oct 25, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$320,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Oct 16, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$86,250.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Microsoft 365 Subscription</p>
+        <small>Oct 09, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$324.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Business Income</p>
+        <small>Sep 30, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$174,800.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>FedEx Shipping Services</p>
+        <small>Sep 23, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$425.60</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Web Services</p>
+        <small>Sep 15, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$1,126.80</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer – Overseas Client</p>
+        <small>Aug 28, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$255,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Utilities</p>
+        <small>Aug 18, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$1,245.55</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Client Deposit</p>
+        <small>Aug 05, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$82,400.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Jul 24, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$83,950.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Jul 17, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$562.75</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Contract Payment</p>
+        <small>Jun 29, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$139,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Withdrawal</p>
+        <small>Jun 18, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Business Internet</p>
+        <small>May 30, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$312.60</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer – Corporate Partner</p>
+        <small>May 15, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$201,250.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Corporate Card – Dell Technologies</p>
+        <small>Apr 28, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$4,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit – Business Revenue</p>
+        <small>Mar 18, 2020</small>
+      </div>
+      <div class="txn-amount credit">+$94,300.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Cleaning Services</p>
+        <small>Feb 21, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$875.40</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Processing</p>
+        <small>Jan 10, 2020</small>
+      </div>
+      <div class="txn-amount debit">−$81,600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Dec 27, 2019</small>
+      </div>
+      <div class="txn-amount credit">+$4,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Marketplace</p>
+        <small>Dec 22, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$146.85</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Dec 18, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$124.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Withdrawal</p>
+        <small>Dec 15, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$300.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Dec 12, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$186.42</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Netflix Subscription</p>
+        <small>Dec 09, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$15.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Shell Gas Station</p>
+        <small>Dec 05, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$52.30</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Starbucks</p>
+        <small>Nov 30, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$8.45</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Nov 29, 2019</small>
+      </div>
+      <div class="txn-amount credit">+$4,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Apple Services</p>
+        <small>Nov 25, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$9.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Target</p>
+        <small>Nov 21, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$214.18</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Withdrawal</p>
+        <small>Nov 18, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$400.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Uber Ride</p>
+        <small>Nov 15, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$27.60</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Costco Wholesale</p>
+        <small>Nov 12, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$287.54</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>PayPal Purchase</p>
+        <small>Nov 08, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$65.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Nov 01, 2019</small>
+      </div>
+      <div class="txn-amount credit">+$4,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>CVS Pharmacy</p>
+        <small>Oct 28, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$39.42</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Best Buy</p>
+        <small>Oct 23, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$749.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Comcast Internet</p>
+        <small>Oct 20, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$89.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Withdrawal</p>
+        <small>Oct 17, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$200.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Home Depot</p>
+        <small>Oct 13, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$198.77</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Oct 04, 2019</small>
+      </div>
+      <div class="txn-amount credit">+$4,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>McDonald's</p>
+        <small>Sep 29, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$12.45</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walgreens</p>
+        <small>Sep 24, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$31.18</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Southwest Airlines</p>
+        <small>Sep 20, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$412.60</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Deposit</p>
+        <small>Sep 15, 2019</small>
+      </div>
+      <div class="txn-amount credit">+$3,550.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Whole Foods Market</p>
+        <small>Sep 12, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$124.83</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Sep 06, 2019</small>
+      </div>
+      <div class="txn-amount credit">+$4,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Lyft Ride</p>
+        <small>Sep 03, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$18.95</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Aug 30, 2019</small>
+      </div>
+      <div class="txn-amount debit">−$97.36</div>
+    </div>
+
+    <!-- 2018 TRANSACTIONS -->
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Opening Deposit</p>
+        <small>Dec 28, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$50,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit</p>
+        <small>Dec 21, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$4,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Marketplace</p>
+        <small>Dec 17, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$148.92</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Dec 10, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$300.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Nov 28, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$124.85</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Nov 16, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$4,800.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Nov 08, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$186.47</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Shell Fuel Station</p>
+        <small>Oct 29, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$64.28</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Tax Refund</p>
+        <small>Oct 18, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$1,950.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Netflix Subscription</p>
+        <small>Oct 05, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$13.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit</p>
+        <small>Sep 28, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$4,750.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Target</p>
+        <small>Sep 17, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$94.66</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>CVS Pharmacy</p>
+        <small>Aug 29, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$58.24</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Interest Payment</p>
+        <small>Aug 15, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$42.15</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Aug 04, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$200.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Apple App Store</p>
+        <small>Jul 27, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$9.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Jul 13, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$4,700.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Home Depot</p>
+        <small>Jun 30, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$326.55</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Marketplace</p>
+        <small>Jun 19, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$82.41</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Direct Deposit</p>
+        <small>Jun 08, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$4,650.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Uber Technologies</p>
+        <small>May 28, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$26.80</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Costco Wholesale</p>
+        <small>May 15, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$238.45</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Interest Credit</p>
+        <small>Apr 30, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$38.20</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Utility Bill Payment</p>
+        <small>Apr 18, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$164.75</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Mar 26, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$132.16</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit</p>
+        <small>Mar 09, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$4,600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Feb 26, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$119.95</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Feb 12, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$150.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Jan 19, 2018</small>
+      </div>
+      <div class="txn-amount credit">+$4,550.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Monthly Account Fee</p>
+        <small>Jan 02, 2018</small>
+      </div>
+      <div class="txn-amount debit">−$15.00</div>
+    </div>
+
+    <!-- 2017 TRANSACTIONS -->
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Opening Balance Transfer</p>
+        <small>Dec 29, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$25,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit</p>
+        <small>Dec 22, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$4,250.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Marketplace</p>
+        <small>Dec 16, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$96.34</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Dec 08, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$200.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Nov 27, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$108.65</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Nov 17, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$4,180.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Nov 09, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$154.87</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Shell Fuel Station</p>
+        <small>Oct 30, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$57.94</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>IRS Tax Refund</p>
+        <small>Oct 19, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$1,420.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Netflix Subscription</p>
+        <small>Oct 05, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$10.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit</p>
+        <small>Sep 28, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$4,150.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Target Store</p>
+        <small>Sep 15, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$87.42</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>CVS Pharmacy</p>
+        <small>Aug 29, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$42.88</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Interest Credit</p>
+        <small>Aug 14, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$28.63</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Aug 03, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$150.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Apple iTunes Store</p>
+        <small>Jul 26, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$14.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Jul 14, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$4,100.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Home Depot</p>
+        <small>Jun 30, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$215.66</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Marketplace</p>
+        <small>Jun 18, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$73.45</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Jun 09, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$4,080.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Uber Technologies</p>
+        <small>May 29, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$18.60</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Costco Wholesale</p>
+        <small>May 18, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$182.53</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Savings Interest</p>
+        <small>Apr 30, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$25.15</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Electric Utility Payment</p>
+        <small>Apr 16, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$142.86</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Mar 29, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$118.22</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit</p>
+        <small>Mar 17, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$4,050.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Feb 27, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$103.15</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Feb 13, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$100.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Jan 20, 2017</small>
+      </div>
+      <div class="txn-amount credit">+$4,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Monthly Maintenance Fee</p>
+        <small>Jan 03, 2017</small>
+      </div>
+      <div class="txn-amount debit">−$12.00</div>
+    </div>
+
+    <!-- 2016 TRANSACTIONS -->
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Initial Account Deposit</p>
+        <small>Dec 30, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$15,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit</p>
+        <small>Dec 22, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$3,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Marketplace</p>
+        <small>Dec 15, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$68.49</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Dec 08, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$100.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Nov 28, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$96.45</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Nov 18, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$3,800.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Nov 09, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$104.76</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Shell Fuel Station</p>
+        <small>Oct 31, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$49.88</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>IRS Tax Refund</p>
+        <small>Oct 17, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$1,180.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Netflix Subscription</p>
+        <small>Oct 06, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$9.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit</p>
+        <small>Sep 23, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$3,780.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Target Store</p>
+        <small>Sep 15, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$76.92</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>CVS Pharmacy</p>
+        <small>Aug 29, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$34.18</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Savings Interest</p>
+        <small>Aug 12, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$19.84</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Aug 05, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$120.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Apple iTunes</p>
+        <small>Jul 28, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$8.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Jul 15, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$3,760.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Home Depot</p>
+        <small>Jun 27, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$174.20</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon Marketplace</p>
+        <small>Jun 14, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$54.30</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Jun 03, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$3,740.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Uber Technologies</p>
+        <small>May 26, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$15.72</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Costco Wholesale</p>
+        <small>May 16, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$148.54</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Interest Credit</p>
+        <small>Apr 29, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$17.25</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Electric Utility Payment</p>
+        <small>Apr 18, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$128.90</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Mar 30, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$96.12</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit</p>
+        <small>Mar 18, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$3,700.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Feb 26, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$92.50</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Feb 11, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$80.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Deposit</p>
+        <small>Jan 22, 2016</small>
+      </div>
+      <div class="txn-amount credit">+$3,650.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Monthly Account Maintenance Fee</p>
+        <small>Jan 04, 2016</small>
+      </div>
+      <div class="txn-amount debit">−$10.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Payroll Deposit - Horizon Technologies</p>
+        <small>Dec 30, 2015</small>
+      </div>
+      <div class="txn-amount credit">+$2,846.75</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Whole Foods Market</p>
+        <small>Dec 28, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$118.42</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Transfer to Savings</p>
+        <small>Dec 23, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Withdrawal - Chase ATM</p>
+        <small>Dec 20, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$200.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Starbucks Coffee</p>
+        <small>Dec 18, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$8.75</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Amazon.com</p>
+        <small>Dec 16, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$237.18</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Shell Oil</p>
+        <small>Nov 29, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$46.91</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Interest Paid</p>
+        <small>Nov 30, 2015</small>
+      </div>
+      <div class="txn-amount credit">+$2.48</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Netflix.com</p>
+        <small>Nov 25, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$9.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter #2841</p>
+        <small>Nov 22, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$184.61</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Payroll Deposit - Horizon Technologies</p>
+        <small>Nov 13, 2015</small>
+      </div>
+      <div class="txn-amount credit">+$2,846.75</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Progressive Auto Insurance</p>
+        <small>Oct 27, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$126.88</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Apple Store</p>
+        <small>Oct 20, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$649.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Refund - Apple</p>
+        <small>Oct 22, 2015</small>
+      </div>
+      <div class="txn-amount credit">+$49.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>CVS Pharmacy</p>
+        <small>Sep 29, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$23.64</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Home Depot</p>
+        <small>Sep 19, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$312.57</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Check #1048 Cleared</p>
+        <small>Aug 31, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Comcast Cable Payment</p>
+        <small>Aug 25, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$87.45</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>PayPal Transfer Received</p>
+        <small>Jul 30, 2015</small>
+      </div>
+      <div class="txn-amount credit">+$415.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Southwest Airlines</p>
+        <small>Jul 18, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$389.80</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Hilton Hotels</p>
+        <small>Jul 15, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$612.55</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Deposit</p>
+        <small>Jun 28, 2015</small>
+      </div>
+      <div class="txn-amount credit">+$900.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Best Buy</p>
+        <small>Jun 11, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$487.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Electric Utility Payment</p>
+        <small>May 29, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$143.77</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>McDonald's</p>
+        <small>May 18, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$11.26</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Internal Transfer From Savings</p>
+        <small>Apr 30, 2015</small>
+      </div>
+      <div class="txn-amount credit">+$1,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>FedEx Office</p>
+        <small>Mar 25, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$46.12</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>IRS Tax Refund</p>
+        <small>Mar 03, 2015</small>
+      </div>
+      <div class="txn-amount credit">+$1,687.42</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Monthly Maintenance Fee Reversal</p>
+        <small>Feb 02, 2015</small>
+      </div>
+      <div class="txn-amount credit">+$12.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>OfficeMax</p>
+        <small>Jan 08, 2015</small>
+      </div>
+      <div class="txn-amount debit">−$79.34</div>
+    </div>
+
+
+    <!-- 2014 TRANSACTIONS -->
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer Received - Capital Investments LLC</p>
+        <small>Dec 29, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$8,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Macy's Department Store</p>
+        <small>Dec 27, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$482.73</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>American Airlines</p>
+        <small>Dec 18, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$712.40</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Restaurant - The Capital Grille</p>
+        <small>Dec 15, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$168.25</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Cash Deposit - Branch</p>
+        <small>Nov 28, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$2,300.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Chevron Fuel Station</p>
+        <small>Nov 20, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$61.58</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Adobe Systems</p>
+        <small>Nov 12, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$49.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Incoming Domestic Wire</p>
+        <small>Oct 31, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$12,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Hilton Garden Inn</p>
+        <small>Oct 22, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$396.80</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Uber Ride</p>
+        <small>Oct 18, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$23.67</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Client Payment - ACH Credit</p>
+        <small>Sep 29, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$4,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Delta Airlines</p>
+        <small>Sep 15, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$538.10</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Apple Online Store</p>
+        <small>Aug 28, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$1,299.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Deposit</p>
+        <small>Aug 21, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$750.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Exxon Mobil</p>
+        <small>Aug 14, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$72.91</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Best Western Hotel</p>
+        <small>Jul 30, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$289.35</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Insurance Claim Settlement</p>
+        <small>Jul 17, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$3,275.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>FedEx Shipping Services</p>
+        <small>Jun 25, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$54.76</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Restaurant - Olive Garden</p>
+        <small>Jun 14, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$81.93</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit - Investment Dividend</p>
+        <small>May 30, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$1,620.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Lowe's Home Improvement</p>
+        <small>May 22, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$438.67</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Cash Withdrawal - Branch</p>
+        <small>Apr 29, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Costco Wholesale</p>
+        <small>Apr 17, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$247.56</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Merchant Refund - Amazon</p>
+        <small>Mar 28, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$84.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Monthly Safe Deposit Box Fee</p>
+        <small>Mar 10, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$35.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Depot</p>
+        <small>Feb 24, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$194.28</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer Received</p>
+        <small>Feb 07, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$5,600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Parking Garage Payment</p>
+        <small>Jan 23, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$32.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>State Tax Refund</p>
+        <small>Jan 14, 2014</small>
+      </div>
+      <div class="txn-amount credit">+$482.15</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Check #0981 Cleared</p>
+        <small>Jan 03, 2014</small>
+      </div>
+      <div class="txn-amount debit">−$1,250.00</div>
+    </div>
+
+
+    <!-- 2013 TRANSACTIONS -->
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Incoming Wire - Real Estate Settlement</p>
+        <small>Dec 30, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$42,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Escrow Deposit</p>
+        <small>Dec 23, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$18,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer Fee</p>
+        <small>Dec 23, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$35.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Bank Interest Credit</p>
+        <small>Dec 18, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$34.17</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Cashier's Check Purchase</p>
+        <small>Nov 29, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$3,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Deposit Adjustment</p>
+        <small>Nov 20, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$650.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Luxury Auto Payment</p>
+        <small>Nov 11, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$765.84</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Investment Distribution</p>
+        <small>Oct 28, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$9,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>American Express Payment</p>
+        <small>Oct 19, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$2,340.72</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Rolex Boutique</p>
+        <small>Sep 30, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$7,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Merchant Refund</p>
+        <small>Sep 24, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$450.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>United Airlines</p>
+        <small>Sep 12, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$1,126.45</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Hotel Marriott Downtown</p>
+        <small>Aug 28, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$842.60</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit - Consulting Services</p>
+        <small>Aug 16, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$5,200.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Bank of America Mortgage Payment</p>
+        <small>Jul 31, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$2,145.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Dividend Reinvestment</p>
+        <small>Jul 15, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$1,485.33</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Branch Cash Deposit</p>
+        <small>Jun 26, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$3,100.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Louis Vuitton</p>
+        <small>Jun 18, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$2,430.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Private Client Wire Transfer</p>
+        <small>May 30, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$18,750.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Brokerage Transfer</p>
+        <small>May 13, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$6,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Capital One Auto Loan</p>
+        <small>Apr 29, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$498.25</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit - Bonus Payment</p>
+        <small>Apr 17, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$12,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Bank Safe Deposit Annual Fee</p>
+        <small>Mar 26, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$95.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Foreign Currency Exchange</p>
+        <small>Mar 12, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$4,800.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Incoming International Wire</p>
+        <small>Feb 26, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$27,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Property Tax Payment</p>
+        <small>Feb 13, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$3,920.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Certificate of Deposit Matured</p>
+        <small>Jan 30, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$15,640.80</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Cash Withdrawal - Private Banking</p>
+        <small>Jan 16, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$2,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>State Tax Refund</p>
+        <small>Jan 08, 2013</small>
+      </div>
+      <div class="txn-amount credit">+$1,862.45</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Check #0876 Cleared</p>
+        <small>Jan 03, 2013</small>
+      </div>
+      <div class="txn-amount debit">−$4,250.00</div>
+    </div>
+
+
+    <!-- 2012 TRANSACTIONS -->
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Business Loan Disbursement</p>
+        <small>Dec 28, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$125,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Commercial Property Closing Costs</p>
+        <small>Dec 20, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$27,845.50</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Bank Service Charge</p>
+        <small>Dec 18, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$25.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Interest Earned</p>
+        <small>Dec 14, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$42.16</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Visa Payment Received</p>
+        <small>Nov 29, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$2,400.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Nordstrom</p>
+        <small>Nov 18, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$613.27</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>FedEx Office Services</p>
+        <small>Nov 08, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$119.43</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Client Retainer Deposit</p>
+        <small>Oct 26, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$18,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Furniture Purchase</p>
+        <small>Oct 17, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$4,265.90</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>United Parcel Service</p>
+        <small>Sep 29, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$74.35</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Quarterly Investment Income</p>
+        <small>Sep 18, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$6,780.55</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Staples Business Advantage</p>
+        <small>Aug 30, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$236.47</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Hilton Hotels</p>
+        <small>Aug 21, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$924.15</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit - Contract Payment</p>
+        <small>Aug 03, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$9,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Mercedes-Benz Financial</p>
+        <small>Jul 27, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$812.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>IRS Tax Refund</p>
+        <small>Jul 13, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$4,625.90</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Best Buy Business</p>
+        <small>Jun 28, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$1,186.75</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Incoming Wire - ABC Holdings</p>
+        <small>Jun 08, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$21,500.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wells Fargo Mortgage</p>
+        <small>May 29, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$2,465.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Deposit</p>
+        <small>May 17, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$1,200.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Apple Store</p>
+        <small>Apr 30, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$2,149.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Dividend Payment</p>
+        <small>Apr 18, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$1,962.88</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Home Depot</p>
+        <small>Mar 26, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$487.34</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Incoming ACH Transfer</p>
+        <small>Mar 08, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$7,250.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Cash Withdrawal - ATM</p>
+        <small>Feb 24, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Southwest Airlines</p>
+        <small>Feb 11, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$468.20</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Security Deposit Refund</p>
+        <small>Jan 30, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$950.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Check #0621 Cleared</p>
+        <small>Jan 19, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$3,275.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Balance Inquiry Fee</p>
+        <small>Jan 09, 2012</small>
+      </div>
+      <div class="txn-amount debit">−$2.50</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Opening Balance Adjustment</p>
+        <small>Jan 03, 2012</small>
+      </div>
+      <div class="txn-amount credit">+$5,000.00</div>
+    </div>
+
+    <!-- 2011 TRANSACTIONS -->
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Direct Deposit - Smith & Associates LLC</p>
+        <small>Dec 29, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$4,285.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Cash Withdrawal - Branch Teller</p>
+        <small>Dec 22, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$1,000.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Target</p>
+        <small>Dec 19, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$286.54</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Interest Payment</p>
+        <small>Dec 15, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$18.62</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>AT&T Mobility</p>
+        <small>Nov 28, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$128.40</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Wire Transfer Received</p>
+        <small>Nov 18, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$15,600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Check #0538 Cleared</p>
+        <small>Nov 07, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$2,350.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Costco Wholesale</p>
+        <small>Oct 30, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$416.83</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Credit - Consulting Income</p>
+        <small>Oct 18, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$3,850.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Lexus Financial Services</p>
+        <small>Oct 06, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$548.90</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Deposit</p>
+        <small>Sep 26, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$900.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>OfficeMax</p>
+        <small>Sep 13, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$214.76</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Blue Cross Health Insurance</p>
+        <small>Aug 30, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$356.15</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Refund - Home Improvement Store</p>
+        <small>Aug 18, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$168.50</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Marriott Hotel</p>
+        <small>Jul 29, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$684.20</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ACH Deposit - Client Payment</p>
+        <small>Jul 15, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$6,750.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Homeowners Association Fee</p>
+        <small>Jun 27, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$275.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Cashier's Check Deposit</p>
+        <small>Jun 09, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$9,200.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Southwest Airlines</p>
+        <small>May 30, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$483.70</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Electric Utility Payment</p>
+        <small>May 18, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$194.81</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Dividend Credit</p>
+        <small>Apr 29, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$845.36</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>State Farm Insurance</p>
+        <small>Apr 15, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$287.52</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Whole Foods Market</p>
+        <small>Mar 31, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$173.64</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Incoming Wire - Business Partner</p>
+        <small>Mar 16, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$24,800.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Property Management Fee</p>
+        <small>Feb 28, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$1,250.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Certificate of Deposit Interest</p>
+        <small>Feb 14, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$214.90</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>FedEx Shipping</p>
+        <small>Jan 31, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$46.18</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Tax Refund Deposit</p>
+        <small>Jan 17, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$2,184.70</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Monthly Maintenance Fee</p>
+        <small>Jan 10, 2011</small>
+      </div>
+      <div class="txn-amount debit">−$12.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Opening Balance Transfer</p>
+        <small>Jan 03, 2011</small>
+      </div>
+      <div class="txn-amount credit">+$8,000.00</div>
+    </div>
+
+    <!-- ========================= 2010 TRANSACTIONS ========================= -->
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Direct Deposit - Northbridge Solutions</p>
+        <small>Dec 30, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$3,825.40</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Rent Payment - Oakwood Apartments</p>
+        <small>Dec 28, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$1,150.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Verizon Wireless</p>
+        <small>Dec 22, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$98.47</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Cash Withdrawal</p>
+        <small>Dec 19, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$200.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Kroger Grocery Store</p>
+        <small>Dec 15, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$132.74</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Payroll Bonus</p>
+        <small>Nov 30, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$1,250.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Netflix Membership</p>
+        <small>Nov 22, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$8.99</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walgreens Pharmacy</p>
+        <small>Nov 15, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$43.62</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Tax Refund Deposit</p>
+        <small>Oct 29, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$1,482.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Comcast Cable</p>
+        <small>Oct 24, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$84.95</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Shell Gas Station</p>
+        <small>Oct 16, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$47.83</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Cash Deposit - Branch</p>
+        <small>Sep 30, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$600.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Macy's</p>
+        <small>Sep 18, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$268.90</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Auto Insurance Payment</p>
+        <small>Sep 10, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$156.30</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Interest Credit</p>
+        <small>Aug 31, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$12.64</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Check #0415 Cleared</p>
+        <small>Aug 20, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$875.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Best Buy</p>
+        <small>Jul 29, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$486.74</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Employer Expense Reimbursement</p>
+        <small>Jul 16, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$392.50</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Southwest Airlines</p>
+        <small>Jun 28, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$319.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Hilton Garden Inn</p>
+        <small>Jun 22, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$248.75</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>PayPal Payment Received</p>
+        <small>May 31, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$725.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Office Depot</p>
+        <small>May 18, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$139.95</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Starbucks Coffee</p>
+        <small>Apr 26, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$6.85</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Federal Tax Refund</p>
+        <small>Apr 12, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$2,365.41</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Walmart Supercenter</p>
+        <small>Mar 24, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$189.62</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Electric Utility Bill</p>
+        <small>Mar 08, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$142.33</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>ATM Deposit</p>
+        <small>Feb 26, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$350.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Target</p>
+        <small>Feb 14, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$94.81</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Vehicle Registration Fee</p>
+        <small>Jan 21, 2010</small>
+      </div>
+      <div class="txn-amount debit">−$84.00</div>
+    </div>
+
+    <div class="txn">
+      <div class="txn-left">
+        <p>Opening Balance</p>
+        <small>Jan 04, 2010</small>
+      </div>
+      <div class="txn-amount credit">+$6,500.00</div>
+    </div>
+  </div>
+
+
+
+  <script>
+    const container = document.querySelector(".transactions");
+
+    // Get saved transactions
+    let savedTxns = JSON.parse(localStorage.getItem("transactions")) || [];
+
+    // Loop through and display them
+    savedTxns.forEach((txn) => {
+      const div = document.createElement("div");
+      div.classList.add("txn");
+
+      // Pending transactions styling
+      if (txn.type === "Pending") {
+        div.classList.add("pending");
+      }
+
+      // Determine if it's credit or debit
+      // For Pending, always treat as debit (money going out)
+      const isCredit = txn.type === "Completed" && txn.amount > 0;
+
+      div.innerHTML = `
+        <div class="txn-left">
+            <p>${txn.name}</p>
+            <small>${new Date(txn.date).toLocaleDateString()} • ${txn.type}</small>
+        </div>
+        <div class="txn-amount ${isCredit ? "credit" : "debit"}">
+            ${isCredit ? "+" : "−"}$${txn.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </div>
+    `;
+
+      // Add new transactions to the top
+      container.prepend(div);
+    });
+  </script>
+
+  <script src="../main.js"></script>
+</body>
+
+</html>

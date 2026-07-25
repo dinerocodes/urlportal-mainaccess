@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts Dashbrd</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --b-red: #c41230;
+            --b-blue: #0052a5;
+            --text: #111;
+            --muted: #6d6d6d;
+            --border: #e5e5e5;
+            --bg: #f3f3f3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            padding-bottom: 78px;
+        }
+
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .top-icons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+        }
+
+        .top-icons i {
+            font-size: 18px;
+        }
+
+        .right-icons i {
+            margin-left: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            padding-left: 14px;
+        }
+
+        .tab {
+            padding: 10px 14px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .tab.active {
+            color: var(--b-red);
+            border-bottom: 3px solid var(--b-red);
+            font-weight: 600;
+        }
+
+        .search {
+            margin: 10px 12px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .card {
+            background: #fff;
+            margin: 8px 12px;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+        .card p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .card a {
+            color: var(--b-blue);
+            text-decoration: none;
+        }
+
+        .section {
+            background: #fff;
+            margin: 10px 12px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .graph-container {
+            padding: 12px 14px 16px;
+            height: 200px;
+        }
+
+        .section-accent {
+            height: 6px;
+            background: linear-gradient(to right, #c41230 0%, #c41230 70%, #0052a5 100%);
+        }
+
+        .section-header {
+            padding: 12px 14px;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            border-top: 1px solid #e6e6e6;
+        }
+
+        .row-left small {
+            display: block;
+            font-size: 11px;
+            color: #6d6d6d;
+            margin-bottom: 2px;
+        }
+
+        .row-left p {
+            font-size: 14px;
+            color: #111;
+        }
+
+        .row-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .b-logo {
+            height: 20px;
+            width: auto;
+        }
+
+        .amount-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .amount {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .amount-row i {
+            font-size: 13px;
+            color: #9b9b9b;
+        }
+
+        .bottom {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+        }
+
+        .nav {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            padding: 8px 0;
+            color: var(--muted);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav i {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .nav.active {
+            color: var(--b-blue);
+        }
+
+        .see-more {
+            font-size: 12px;
+            color: #0052a5;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .txn-preview {
+            padding: 6px 0;
+        }
+
+        .txn-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e6e6e6;
+            cursor: pointer;
+        }
+
+        .txn-item:last-child {
+            border-bottom: none;
+        }
+
+        .txn-left p {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .txn-left small {
+            font-size: 12px;
+            color: #6d6d6d;
+        }
+
+        .txn-right {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .txn-right.debit {
+            color: #c41230;
+        }
+
+        .txn-item.pending {
+            opacity: 0.6;
+            font-style: italic;
+        }
+
+        /* Transaction Popup */
+        #txnPopup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1000;
+        }
+
+        #txnPopup span {
+            display: block;
+            margin: 6px 0;
+        }
+
+        #txnPopup button {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: var(--b-blue);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+
+
+
+        .account-hold-alert {
+            margin-top: 15px;
+            background: #ffe5e5;
+            border: 1px solid #ff4d4d;
+            border-radius: 10px;
+            padding: 13px;
+            width: 95%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .account-hold-alert:hover {
+            background: #ffd6d6;
+            transform: translateY(-2px);
+        }
+
+        .hold-content {
+            flex: 1;
+        }
+
+        .hold-content h4 {
+            margin: 0;
+            color: #b00000;
+            font-size: 16px;
+        }
+
+        .hold-content p {
+            margin: 5px 0 0;
+            color: #555;
+            font-size: 13px;
+        }
+
+
+        .hold-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+
+        .hold-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(3px);
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+
+        .popup-box {
+            width: 360px;
+            background: rgba(56, 56, 56, 0.95);
+            border-radius: 22px;
+            padding: 25px 22px;
+            text-align: center;
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.25),
+                inset 0 1px 1px rgba(255, 255, 255, 0.8);
+            animation: iphonePopup .35s cubic-bezier(.4, 0, .2, 1);
+            backdrop-filter: blur(20px);
+        }
+
+
+        .popup-box h3 {
+            margin-top: 18px;
+            font-size: 20px;
+            color: #d6d6d6;
+            text-align: left;
+            font-weight: 600;
+        }
+
+
+        .popup-box p {
+            color: #e4e4e4;
+            font-size: 15px;
+            line-height: 1.5;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+
+        .popup-box button {
+            width: 100%;
+            margin-top: 20px;
+            background: none;
+            text-align: right;
+            color: rgb(76, 78, 192);
+            border: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+
+        @keyframes iphonePopup {
+
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+        }
+
+
+
+        .session-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+
+        .session-box {
+
+            width: 350px;
+            background: rgba(45, 45, 45, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+
+            color: white;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, .3);
+
+            animation: sessionShow .3s ease;
+
+        }
+
+
+        .session-box h3 {
+
+            font-size: 18px;
+            margin-bottom: 12px;
+
+        }
+
+
+        .session-box p {
+
+            color: #ddd;
+            font-size: 15px;
+            line-height: 1.5;
+
+        }
+
+
+        .session-box button {
+
+             width: 100%;
+            margin-top: 20px;
+            background: none;
+            text-align: right;
+            color: rgb(76, 78, 192);
+            border: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+
+        }
+
+
+
+        @keyframes sessionShow {
+
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <div class="top-icons">
+            <i class="fa fa-bars"></i>
+            <div class="right-icons">
+                <a href='./notification.html'>
+                    <i class="fa fa-envelope"></i>
+                </a>
+                <a href='../login.html' style='color: black;'>
+                    <i class="fa fa-right-from-bracket"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active">Dashboard</div>
+            <a href='./balance.html' style='text-decoration: none;'>
+                <div class="tab">Accounts</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="search">
+        <i class="fa fa-search"></i>
+        <input placeholder="How can we help?">
+    </div>
+
+    <div class="card">
+        <div class="card-head">
+            <span>William Brooks</span>
+            <i class="fa fa-chevron-right"></i>
+        </div>
+        <p>
+            You've been enjoying Preferred Rewards for Business since Mar 2024.
+            <a href="./reward-dashboard.html">My Summary</a>
+        </p>
+    </div>
+
+    <div class="account-hold-alert" onclick="showHoldNotification()">
+
+        <div class="hold-content">
+            <h4>Account On Hold</h4>
+        </div>
+
+        <i class="fa fa-chevron-right"></i>
+    </div>
+
+    <!-- Popup Notification -->
+    <div class="hold-popup" id="holdPopup">
+        <div class="popup-box">
+            <p>
+                Dear customer, <br>
+                A payment of $21,839 is required for your affected accounts. Outbound transfers have been temporarily
+                paused pending tax clearance. Kindly make this payment to restore full access.
+            </p>
+
+            <button onclick="closeHoldNotification()">Close</button>
+        </div>
+    </div>
+
+
+    <div class="session-popup" id="sessionPopup">
+        <div class="session-box">
+            <h3>
+                Session Timeout Warning
+            </h3>
+            <p>
+                Your online banking session will end in 2 minutes.
+                If you are still working in your online banking session,
+                choose OK to continue.
+            </p>
+            <button onclick="continueSession()">
+                OK
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Banking Section -->
+    <a href="./account.html" style="text-decoration: none; color: black;">
+        <div class="section">
+            <div class="section-accent"></div>
+            <div class="section-header">Banking <i class="fa fa-chevron-up"></i></div>
+
+            <div class="row">
+                <div class="row-left">
+                    <small>BANK OF AMERICA</small>
+                    <p>Advantage Plus Banking - 3432</p>
+                </div>
+                <div class="row-right">
+                    <img src="b.png" class="b-logo">
+                    <div class="amount-row">
+                        <span class="amount" id="mainBalance">$351,482.63</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="row-left">
+                    <small>BANK OF AMERICA</small>
+                    <p>Business Adv Savings - 0193</p>
+                </div>
+                <div class="row-right">
+                    <img src="b.png" class="b-logo">
+                    <div class="amount-row">
+                        <span class="amount">$1,324,819.49</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+
+    <!-- Transactions -->
+    <div class="section">
+        <div class="section-header">
+            Recent Transactions
+            <span class="see-more" onclick="goToTransactions()">See more</span>
+        </div>
+        <div class="txn-preview" id="txnPreview"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="section">
+        <div class="section-header">Account Balance Trend <i class="fa fa-ellipsis-h"></i></div>
+        <div class="graph-container">
+            <canvas id="balanceChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom">
+        <a href="" class="nav active"><i class="fa fa-wallet"></i>Accounts</a>
+        <a class='nav' href='./pay.html'><i class="fa fa-arrows-left-right"></i>Pay & Transfer</a>
+        <a class='nav' href='./deposit.html'><i class="fa fa-check"></i>Deposit Checks</a>
+        <a class='nav' href='./setting.html'><i class="fa fa-gear"></i>Settings</a>
+    </div>
+
+    <!-- Transaction Popup -->
+    <div id="txnPopup">
+        <span id="txnName"></span>
+        <span id="txnAmount"></span>
+        <span id="txnType"></span>
+        <span id="txnDate"></span>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Helpers
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+                " • " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        }
+
+        function goToTransactions() {
+            window.location.href = "transaction.html";
+        }
+
+        function showPopup(txn) {
+            document.getElementById("txnName").innerText = "Name: " + txn.name;
+            document.getElementById("txnAmount").innerText = "Amount: −$" + txn.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("txnType").innerText = "Type: Pending";
+            document.getElementById("txnDate").innerText = "Date: " + formatDate(txn.date);
+            document.getElementById("txnPopup").style.display = "block";
+        }
+
+        function closePopup() {
+            document.getElementById("txnPopup").style.display = "none";
+        }
+
+        // Load transactions
+        const balanceEl = document.getElementById("mainBalance");
+        const previewContainer = document.getElementById("txnPreview");
+        const savedTxns = JSON.parse(localStorage.getItem("transactions")) || [];
+        let balance = parseFloat(balanceEl.innerText.replace(/[^0-9.-]+/g, ""));
+
+        previewContainer.innerHTML = "";
+
+        savedTxns.slice(0, 3).forEach((txn) => {
+            const row = document.createElement("div");
+            row.className = "txn-item pending"; // all txns pending
+
+            row.innerHTML = `
+                <div class="txn-left">
+                    <p>${txn.name}</p>
+                    <small>${formatDate(txn.date)} • Pending</small>
+                </div>
+                <div class="txn-right debit">−$${txn.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            `;
+            row.addEventListener("click", () => showPopup(txn));
+            previewContainer.appendChild(row);
+        });
+
+        // Balance does not change for pending transactions
+        balanceEl.innerText = "$" + balance.toLocaleString();
+
+        // Chart
+        const ctx = document.getElementById("balanceChart").getContext("2d");
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                datasets: [{
+                    data: [92000, 93500, 104800, 126000, 217213, 226900, 537213],
+                    borderColor: "#0052a5",
+                    backgroundColor: "rgba(0,82,165,0.08)",
+                    borderWidth: 2,
+                    tension: 0.35,
+                    fill: true,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => "$" + ctx.parsed.y.toLocaleString() } }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: "#6d6d6d" } },
+                    y: { grid: { color: "#eeeeee" }, ticks: { color: "#6d6d6d", callback: value => "$" + value / 1000 + "k" } }
+                }
+            }
+        });
+    </script>
+
+    <script>
+        function showHoldNotification() {
+            document.getElementById("holdPopup").style.display = "flex";
+        }
+
+
+        function closeHoldNotification() {
+            document.getElementById("holdPopup").style.display = "none";
+        }
+    </script>
+
+    <script>
+        let inactivityTimer;
+
+        let warningTimer;
+
+        let logoutTimer;
+        // 4 minutes
+        const inactivityLimit = 240000;
+        // 10 seconds
+        const logoutDelay = 10000;
+        function resetSessionTimer() {
+            clearTimeout(inactivityTimer);
+            clearTimeout(warningTimer);
+            clearTimeout(logoutTimer);
+            document.getElementById("sessionPopup").style.display = "none";
+            inactivityTimer = setTimeout(() => {
+                showSessionWarning();
+            }, inactivityLimit);
+        }
+        function showSessionWarning() {
+            document.getElementById("sessionPopup").style.display = "flex";
+            logoutTimer = setTimeout(() => {
+                logoutUser();
+            }, logoutDelay);
+        }
+        function continueSession() {
+            clearTimeout(logoutTimer);
+            document.getElementById("sessionPopup").style.display = "none";
+            resetSessionTimer();
+        }
+        function logoutUser() {
+            window.location.href = "../login.html";
+        }
+        // Detect user activity
+
+        [
+            "click",
+            "mousemove",
+            "keypress",
+            "scroll",
+            "touchstart"
+        ].forEach(event => {
+            document.addEventListener(event, resetSessionTimer);
+        });
+        // Start timer when page loads
+
+        resetSessionTimer();
+    </script>
+</body>
+
+</html>

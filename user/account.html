@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --boa-red: #c41230;
+            --boa-blue: #0052a5;
+            --text: #111;
+            --muted: #6d6d6d;
+            --border: #e5e5e5;
+            --bg: #f3f3f3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            padding-bottom: 80px;
+        }
+
+        /* TOP */
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .top-icons {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px;
+        }
+
+        .right-icons i {
+            margin-left: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            padding-left: 16px;
+        }
+
+        .tab {
+            padding: 10px 14px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .tab.active {
+            color: var(--boa-red);
+            border-bottom: 3px solid var(--boa-red);
+            font-weight: 600;
+        }
+
+        /* SEARCH */
+        .search {
+            margin: 12px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ACCOUNT CARD */
+        .account-card {
+            background: #fff;
+            margin: 12px;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .account-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .account-balance {
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .account-sub {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* ROUTING SECTION */
+        .routing-card {
+            background: #fff;
+            margin: 12px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .routing-header {
+            padding: 14px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .routing-content {
+            display: none;
+            border-top: 1px solid var(--border);
+        }
+
+        .routing-row {
+            padding: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .routing-row p {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .routing-row small {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* SECTION */
+        .section {
+            background: #fff;
+            margin: 12px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 14px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .see-more {
+            color: var(--boa-blue);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* TRANSACTIONS */
+        .txn-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px;
+            border-top: 1px solid #eee;
+        }
+
+        .txn-left p {
+            font-size: 14px;
+        }
+
+        .txn-left small {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .txn-right {
+            font-weight: 600;
+        }
+
+        .credit {
+            color: green;
+        }
+
+        .debit {
+            color: var(--boa-red);
+        }
+
+        /* GRAPH */
+        .graph-container {
+            height: 200px;
+            padding: 12px;
+        }
+
+        /* BOTTOM NAV */
+        .bottom {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+        }
+
+        .nav {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            padding: 8px 0;
+            color: var(--muted);
+            text-decoration: none;
+        }
+
+        .nav.active {
+            color: var(--boa-blue);
+        }
+
+        .session-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+
+        .session-box {
+
+            width: 350px;
+            background: rgba(45, 45, 45, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+
+            color: white;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, .3);
+
+            animation: sessionShow .3s ease;
+
+        }
+
+
+        .session-box h3 {
+
+            font-size: 18px;
+            margin-bottom: 12px;
+
+        }
+
+
+        .session-box p {
+
+            color: #ddd;
+            font-size: 15px;
+            line-height: 1.5;
+
+        }
+
+
+        .session-box button {
+
+            width: 100%;
+            margin-top: 20px;
+            background: none;
+            text-align: right;
+            color: rgb(76, 78, 192);
+            border: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+
+        }
+
+
+
+        @keyframes sessionShow {
+
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP -->
+    <div class="topbar">
+        <div class="top-icons">
+            <i class="fa fa-bars"></i>
+            <div class="right-icons">
+                <a href="./notification.html"><i class="fa fa-envelope"></i></a>
+                <a href="../login.html"><i class="fa fa-right-from-bracket"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="session-popup" id="sessionPopup">
+        <div class="session-box">
+            <h3>
+                Session Timeout Warning
+            </h3>
+            <p>
+                Your online banking session will end in 2 minutes.
+                If you are still working in your online banking session,
+                choose OK to continue.
+            </p>
+            <button onclick="continueSession()">
+                OK
+            </button>
+        </div>
+
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search">
+        <i class="fa fa-search"></i>
+        <input placeholder="How can we help?" style="border:none; outline:none; width:100%;">
+    </div>
+
+    <!-- ACCOUNT CARD -->
+    <div class="account-card">
+        <div class="account-top">
+            <span>Advantage Plus Banking - 3432</span>
+        </div>
+
+        <div class="account-balance">$351,482.63</div>
+        <div class="account-sub">
+            Available balance <i class="fa fa-circle-info"></i>
+        </div>
+    </div>
+
+    <!-- ACCOUNT & ROUTING -->
+    <div class="routing-card">
+        <div class="routing-header" onclick="toggleRouting()">
+            Account & Routing #
+            <i class="fa fa-chevron-down" id="chevron"></i>
+        </div>
+
+        <div id="routingContent">
+
+            <div class="routing-row">
+                <p>Account Number</p>
+                <small>002185202668</small>
+            </div>
+
+            <div class="routing-row">
+                <p>Routing Numbers</p>
+                <small>026009593</small>
+            </div>
+
+            <div class="routing-row">
+                <p>Paper & Electronic</p>
+                <small>87370024</small>
+            </div>
+
+            <div class="routing-row">
+                <p>Wires</p>
+                <small>0988730593</small>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RECENT TRANSACTIONS -->
+    <div class="section">
+        <div class="section-header">
+            Recent Transactions
+            <a href="./transaction.html" style="text-decoration: none; color: black;"><span class="see-more"
+                    onclick="goToTransactions()">See more</span></a>
+        </div>
+
+        <div id="txnPreview"></div>
+    </div>
+
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom">
+        <a class="nav active" href="./dashboard.html"><i class="fa fa-wallet"></i><br>Accounts</a>
+        <a class="nav" href="./pay.html"><i class="fa fa-arrows-left-right"></i><br>Pay</a>
+        <a class="nav" href="./deposit.html"><i class="fa fa-check"></i><br>Deposit</a>
+        <a class="nav" href="./setting.html"><i class="fa fa-gear"></i><br>Settings</a>
+    </div>
+
+    <script>
+        function toggleRouting() {
+            const content = document.getElementById("routingContent");
+            const icon = document.getElementById("chevron");
+
+            if (content.style.display === "block") {
+                content.style.display = "none";
+                icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+            } else {
+                content.style.display = "block";
+                icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+            }
+        }
+    </script>
+    <script src="../main.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        :root {
+            --b-blue: #0052a5;
+            --b-red: #c41230;
+            --text: #111;
+            --muted: #6d6d6d;
+            --border: #e6e6e6;
+            --bg: #f4f6f8;
+            --card: #ffffff;
+        }
+
+        /* RESET */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ===== HEADER ===== */
+
+        .page-header {
+            position: sticky;
+            top: 0;
+            background: var(--card);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .page-header i {
+            cursor: pointer;
+        }
+
+        /* ===== SECTION ===== */
+
+        .section {
+            background: var(--card);
+            margin: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+        }
+
+        .section-header {
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            background: #fafafa;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        /* ===== ROW ===== */
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .row:hover {
+            background: #f9fbfd;
+        }
+
+        .row-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .row-left p {
+            font-size: 14px;
+        }
+
+        .row-left small {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* ===== ICONS ===== */
+
+        .row i {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* ===== TOGGLE ===== */
+
+        .toggle {
+            position: relative;
+            width: 42px;
+            height: 22px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #ccc;
+            border-radius: 22px;
+            transition: .2s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background: #fff;
+            border-radius: 50%;
+            transition: .2s;
+        }
+
+        .toggle input:checked+.slider {
+            background: var(--b-blue);
+        }
+
+        .toggle input:checked+.slider:before {
+            transform: translateX(20px);
+        }
+
+        /* ===== LOGOUT ===== */
+
+        .logout {
+            color: var(--b-red);
+            font-weight: 600;
+        }
+
+        /* ===== DESKTOP ===== */
+
+        @media (min-width: 768px) {
+            body {
+                max-width: 420px;
+                margin: auto;
+            }
+        }
+
+        .session-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+
+        .session-box {
+
+            width: 350px;
+            background: rgba(45, 45, 45, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+
+            color: white;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, .3);
+
+            animation: sessionShow .3s ease;
+
+        }
+
+
+        .session-box h3 {
+
+            font-size: 18px;
+            margin-bottom: 12px;
+
+        }
+
+
+        .session-box p {
+
+            color: #ddd;
+            font-size: 15px;
+            line-height: 1.5;
+
+        }
+
+
+        .session-box button {
+
+            width: 100%;
+            margin-top: 20px;
+            background: none;
+            text-align: right;
+            color: rgb(76, 78, 192);
+            border: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+
+        }
+
+
+
+        @keyframes sessionShow {
+
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <i class="fa fa-arrow-left" onclick="history.back()"></i>
+        <span>Settings</span>
+    </div>
+
+
+    <div class="session-popup" id="sessionPopup">
+        <div class="session-box">
+            <h3>
+                Session Timeout Warning
+            </h3>
+            <p>
+                Your online banking session will end in 2 minutes.
+                If you are still working in your online banking session,
+                choose OK to continue.
+            </p>
+            <button onclick="continueSession()">
+                OK
+            </button>
+        </div>
+
+    </div>
+    <!-- PROFILE -->
+    <div class="section">
+        <div class="section-header">Profile</div>
+
+        <div class="row">
+            <a href='./profile.html' style='text-decoration: none;'>
+                <div class="row-left">
+                    <p>Personal information</p>
+                    <small>Name, email, phone</small>
+                </div>
+            </a>
+            <i class="fa fa-chevron-right"></i>
+        </div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Business details</p>
+                <small>Business name, address</small>
+            </div>
+            <i class="fa fa-chevron-right"></i>
+        </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="section">
+        <div class="section-header">Security</div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Change password</p>
+            </div>
+            <i class="fa fa-chevron-right"></i>
+        </div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Biometric login</p>
+                <small>Use fingerprint or face ID</small>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Two-factor authentication</p>
+                <small>Extra account protection</small>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" />
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="section">
+        <div class="section-header">Notifications</div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Transaction alerts</p>
+                <small>Deposits, withdrawals</small>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Payment reminders</p>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" />
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div class="section">
+        <div class="section-header">App preferences</div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Language</p>
+                <small>English</small>
+            </div>
+            <i class="fa fa-chevron-right"></i>
+        </div>
+
+        <div class="row">
+            <div class="row-left">
+                <p>Dark mode</p>
+                <small>Use system setting</small>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" />
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- LOGOUT -->
+    <div class="section">
+        <div class="row logout" onclick="logout()">
+            Log out
+        </div>
+    </div>
+
+    <script>
+        function logout() {
+            if (confirm("Are you sure you want to log out?")) {
+                alert("Logged out");
+            }
+        }
+    </script>
+
+    <script src="../main.js"></script>
+
+</body>
+
+</html>

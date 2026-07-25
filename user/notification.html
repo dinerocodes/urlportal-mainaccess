@@ -1,0 +1,3405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        :root {
+            --b-blue: #0052a5;
+            --b-red: #c41230;
+            --text: #111;
+            --muted: #6d6d6d;
+            --border: #e6e6e6;
+            --bg: #f4f6f8;
+            --card: #ffffff;
+        }
+
+        /* RESET */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ===== HEADER ===== */
+
+        .page-header {
+            position: sticky;
+            top: 0;
+            background: var(--card);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .page-header i {
+            cursor: pointer;
+        }
+
+        /* ===== NOTIFICATIONS ===== */
+
+        .notifications {
+            margin: 12px;
+            background: var(--card);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+        }
+
+        .notification {
+            display: flex;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .notification:last-child {
+            border-bottom: none;
+        }
+
+        .notification:hover {
+            background: #f9fbfd;
+        }
+
+        .icon {
+            font-size: 16px;
+            color: var(--b-blue);
+            margin-top: 2px;
+        }
+
+        .content p {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .content small {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* unread indicator */
+
+        .unread {
+            background: #eef5ff;
+        }
+
+        /* ===== DESKTOP ===== */
+
+        @media (min-width: 768px) {
+            body {
+                max-width: 420px;
+                margin: auto;
+            }
+        }
+
+        .session-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+
+        .session-box {
+
+            width: 350px;
+            background: rgba(45, 45, 45, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+
+            color: white;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, .3);
+
+            animation: sessionShow .3s ease;
+
+        }
+
+
+        .session-box h3 {
+
+            font-size: 18px;
+            margin-bottom: 12px;
+
+        }
+
+
+        .session-box p {
+
+            color: #ddd;
+            font-size: 15px;
+            line-height: 1.5;
+
+        }
+
+
+        .session-box button {
+
+            width: 100%;
+            margin-top: 20px;
+            background: none;
+            text-align: right;
+            color: rgb(76, 78, 192);
+            border: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+
+        }
+
+
+
+        @keyframes sessionShow {
+
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <i class="fa fa-arrow-left" onclick="history.back()"></i>
+        <span>Notifications</span>
+    </div>
+
+    <div class="session-popup" id="sessionPopup">
+        <div class="session-box">
+            <h3>
+                Session Timeout Warning
+            </h3>
+            <p>
+                Your online banking session will end in 2 minutes.
+                If you are still working in your online banking session,
+                choose OK to continue.
+            </p>
+            <button onclick="continueSession()">
+                OK
+            </button>
+        </div>
+
+    </div>
+
+    <!-- NOTIFICATIONS LIST -->
+    <div class="notifications" id="notificationList">
+
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$9,750.00 deposited into Business Advantage Checking</p>
+                <small>Dec 30, 2022 • 9:12 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-mobile-screen-button icon"></i>
+            <div class="content">
+                <p>Mobile check deposit of $7,850.00 completed successfully</p>
+                <small>Dec 27, 2022 • 10:35 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$845.60 debit card purchase at Amazon Business</p>
+                <small>Dec 23, 2022 • 3:45 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bolt icon"></i>
+            <div class="content">
+                <p>$3,500.00 instant payment completed successfully</p>
+                <small>Dec 19, 2022 • 12:18 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-fingerprint icon"></i>
+            <div class="content">
+                <p>Biometric login enabled for mobile banking</p>
+                <small>Dec 15, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield-halved icon"></i>
+            <div class="content">
+                <p>Advanced fraud monitoring scan completed</p>
+                <small>Dec 11, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$25,600.00 ACH payment received from client</p>
+                <small>Dec 6, 2022 • 1:22 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice-dollar icon"></i>
+            <div class="content">
+                <p>December electronic statement available</p>
+                <small>Dec 1, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Scheduled vendor payment processed</p>
+                <small>Nov 26, 2022 • 8:05 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bell icon"></i>
+            <div class="content">
+                <p>Real-time account alert preferences updated</p>
+                <small>Nov 21, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$1,800.00 ATM withdrawal completed</p>
+                <small>Nov 16, 2022 • 4:35 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-cart-shopping icon"></i>
+            <div class="content">
+                <p>$420.35 card payment at Office Depot</p>
+                <small>Nov 11, 2022 • 2:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-chart-line icon"></i>
+            <div class="content">
+                <p>Business cash flow insights updated</p>
+                <small>Nov 6, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>New login approved from mobile device</p>
+                <small>Oct 31, 2022 • 7:50 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-arrow-up icon"></i>
+            <div class="content">
+                <p>$6,900.00 transfer received from external account</p>
+                <small>Oct 25, 2022 • 11:40 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Digital receipt generated for card transaction</p>
+                <small>Oct 19, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit posted successfully</p>
+                <small>Oct 13, 2022 • 9:25 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar-check icon"></i>
+            <div class="content">
+                <p>Automatic payment schedule updated</p>
+                <small>Oct 7, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-globe icon"></i>
+            <div class="content">
+                <p>$1,650.00 international card payment approved</p>
+                <small>Oct 1, 2022 • 6:15 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking security credentials updated</p>
+                <small>Sep 25, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-gift icon"></i>
+            <div class="content">
+                <p>$185.25 cashback reward credited</p>
+                <small>Sep 19, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>New virtual debit card created</p>
+                <small>Sep 13, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>Additional business user access granted</p>
+                <small>Sep 7, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Transaction verification completed</p>
+                <small>Sep 1, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$15,750.00 business loan payment processed</p>
+                <small>Aug 26, 2022 • 10:20 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-laptop icon"></i>
+            <div class="content">
+                <p>Online banking profile updated</p>
+                <small>Aug 20, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Tax documents available electronically</p>
+                <small>Aug 14, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-network-wired icon"></i>
+            <div class="content">
+                <p>External account successfully connected</p>
+                <small>Aug 8, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Security review completed successfully</p>
+                <small>Aug 2, 2022</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Digital banking platform update completed</p>
+                <small>Jul 26, 2022</small>
+            </div>
+        </div>
+
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$8,450.00 deposited into Business Advantage Checking</p>
+                <small>Dec 30, 2021 • 9:18 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-mobile-screen icon"></i>
+            <div class="content">
+                <p>Mobile deposit of $6,250.00 completed successfully</p>
+                <small>Dec 26, 2021 • 10:42 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$675.90 debit card purchase at Amazon Business</p>
+                <small>Dec 22, 2021 • 3:35 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bolt icon"></i>
+            <div class="content">
+                <p>$2,500.00 instant transfer completed successfully</p>
+                <small>Dec 18, 2021 • 12:20 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>New device login detected from mobile application</p>
+                <small>Dec 14, 2021 • 7:45 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield-halved icon"></i>
+            <div class="content">
+                <p>Multi-factor authentication verification completed</p>
+                <small>Dec 10, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$21,750.00 ACH payment received from customer account</p>
+                <small>Dec 5, 2021 • 1:05 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice-dollar icon"></i>
+            <div class="content">
+                <p>December electronic statement is ready</p>
+                <small>Dec 1, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Recurring vendor payment processed</p>
+                <small>Nov 26, 2021 • 8:10 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bell icon"></i>
+            <div class="content">
+                <p>Low balance alert settings updated</p>
+                <small>Nov 21, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$900.00 ATM withdrawal completed</p>
+                <small>Nov 16, 2021 • 5:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$385.40 card payment at Office Depot</p>
+                <small>Nov 11, 2021 • 2:15 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-chart-line icon"></i>
+            <div class="content">
+                <p>Business account financial insights updated</p>
+                <small>Nov 6, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-shield icon"></i>
+            <div class="content">
+                <p>Fraud protection monitoring completed</p>
+                <small>Oct 31, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-arrow-up icon"></i>
+            <div class="content">
+                <p>$5,750.00 transfer received from linked account</p>
+                <small>Oct 25, 2021 • 11:30 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Digital transaction receipt generated</p>
+                <small>Oct 19, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit posted successfully</p>
+                <small>Oct 13, 2021 • 9:15 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar-check icon"></i>
+            <div class="content">
+                <p>Automatic payment schedule modified</p>
+                <small>Oct 7, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-plane icon"></i>
+            <div class="content">
+                <p>$1,250.00 international card transaction approved</p>
+                <small>Oct 1, 2021 • 6:40 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking password changed successfully</p>
+                <small>Sep 25, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-gift icon"></i>
+            <div class="content">
+                <p>$145.85 cashback reward credited</p>
+                <small>Sep 19, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>New business debit card activated</p>
+                <small>Sep 13, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>Authorized account user added successfully</p>
+                <small>Sep 7, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Payment verification required for recent purchase</p>
+                <small>Sep 1, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$13,500.00 business loan payment processed</p>
+                <small>Aug 26, 2021 • 10:25 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-laptop icon"></i>
+            <div class="content">
+                <p>Online banking profile information updated</p>
+                <small>Aug 20, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Annual tax documents available electronically</p>
+                <small>Aug 14, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-network-wired icon"></i>
+            <div class="content">
+                <p>External account connection verified</p>
+                <small>Aug 8, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Security review completed successfully</p>
+                <small>Aug 2, 2021</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Digital banking service enhancements completed</p>
+                <small>Jul 26, 2021</small>
+            </div>
+        </div>
+
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$7,250.00 deposited into Business Advantage Checking</p>
+                <small>Dec 30, 2020 • 9:22 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-mobile-screen icon"></i>
+            <div class="content">
+                <p>Mobile check deposit of $5,400.00 completed</p>
+                <small>Dec 26, 2020 • 11:45 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$289.65 debit card purchase at Amazon Business</p>
+                <small>Dec 21, 2020 • 4:18 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$12,000.00 wire transfer completed successfully</p>
+                <small>Dec 17, 2020 • 10:35 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>New sign-in detected from Chrome on Windows</p>
+                <small>Dec 13, 2020 • 8:02 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield-halved icon"></i>
+            <div class="content">
+                <p>Security verification completed successfully</p>
+                <small>Dec 9, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$18,500.00 ACH payment received from business client</p>
+                <small>Dec 4, 2020 • 1:12 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice-dollar icon"></i>
+            <div class="content">
+                <p>December electronic statement is now available</p>
+                <small>Dec 1, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Recurring subscription payment processed</p>
+                <small>Nov 26, 2020 • 8:00 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bell icon"></i>
+            <div class="content">
+                <p>Account alert preferences updated</p>
+                <small>Nov 21, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$1,500.00 cash withdrawal completed</p>
+                <small>Nov 16, 2020 • 3:55 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$540.20 card payment at Office Depot</p>
+                <small>Nov 10, 2020 • 2:30 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-chart-line icon"></i>
+            <div class="content">
+                <p>Business account performance summary available</p>
+                <small>Nov 5, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-shield icon"></i>
+            <div class="content">
+                <p>Two-factor authentication confirmed</p>
+                <small>Oct 30, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-arrow-up icon"></i>
+            <div class="content">
+                <p>$4,200.00 transfer received from linked account</p>
+                <small>Oct 24, 2020 • 12:05 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Digital receipt generated for recent purchase</p>
+                <small>Oct 18, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit successfully posted</p>
+                <small>Oct 12, 2020 • 9:30 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar-check icon"></i>
+            <div class="content">
+                <p>Automatic payment schedule updated</p>
+                <small>Oct 6, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-plane icon"></i>
+            <div class="content">
+                <p>$780.00 international card transaction approved</p>
+                <small>Sep 30, 2020 • 6:22 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Password changed through online banking</p>
+                <small>Sep 24, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-gift icon"></i>
+            <div class="content">
+                <p>$135.60 cashback reward credited</p>
+                <small>Sep 18, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-balance-scale icon"></i>
+            <div class="content">
+                <p>Account balance reconciliation completed</p>
+                <small>Sep 12, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>Authorized business user added</p>
+                <small>Sep 6, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Payment verification required for transaction</p>
+                <small>Aug 31, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$11,500.00 business loan payment processed</p>
+                <small>Aug 25, 2020 • 10:10 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-laptop icon"></i>
+            <div class="content">
+                <p>Online banking profile updated successfully</p>
+                <small>Aug 19, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Tax document and account records available</p>
+                <small>Aug 13, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Fraud monitoring review completed</p>
+                <small>Aug 7, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-network-wired icon"></i>
+            <div class="content">
+                <p>External account connection verified</p>
+                <small>Jul 31, 2020</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Digital banking service improvements completed</p>
+                <small>Jul 24, 2020</small>
+            </div>
+        </div>
+
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$6,850.00 deposited into Business Advantage Checking</p>
+                <small>Dec 30, 2019 • 9:35 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$425.70 debit card purchase at Amazon Business</p>
+                <small>Dec 26, 2019 • 3:20 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-mobile-screen icon"></i>
+            <div class="content">
+                <p>Mobile banking app security update completed</p>
+                <small>Dec 22, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$8,200.00 wire transfer sent to business partner</p>
+                <small>Dec 18, 2019 • 11:42 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>New login detected from Chrome on Windows device</p>
+                <small>Dec 14, 2019 • 7:18 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bell icon"></i>
+            <div class="content">
+                <p>Account alert preferences successfully updated</p>
+                <small>Dec 10, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$14,500.00 ACH payment received from client</p>
+                <small>Dec 5, 2019 • 1:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice-dollar icon"></i>
+            <div class="content">
+                <p>December electronic statement is now available</p>
+                <small>Dec 1, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Scheduled vendor payment processed successfully</p>
+                <small>Nov 26, 2019 • 8:00 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-shield icon"></i>
+            <div class="content">
+                <p>Two-factor authentication verification completed</p>
+                <small>Nov 21, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$1,200.00 cash withdrawal completed</p>
+                <small>Nov 16, 2019 • 4:40 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$315.25 card payment at Office Depot</p>
+                <small>Nov 11, 2019 • 2:55 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Mobile check deposit of $4,600.00 completed</p>
+                <small>Nov 6, 2019 • 10:15 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-chart-line icon"></i>
+            <div class="content">
+                <p>Business account financial summary available</p>
+                <small>Oct 30, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>New business debit card activated</p>
+                <small>Oct 24, 2019 • 12:30 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit successfully posted</p>
+                <small>Oct 18, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield-halved icon"></i>
+            <div class="content">
+                <p>Fraud monitoring scan completed</p>
+                <small>Oct 12, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-plane icon"></i>
+            <div class="content">
+                <p>$950.00 international card transaction approved</p>
+                <small>Oct 6, 2019 • 6:05 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking password updated successfully</p>
+                <small>Sep 30, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Digital receipt available for recent transaction</p>
+                <small>Sep 24, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-arrow-up icon"></i>
+            <div class="content">
+                <p>$3,750.00 transfer received from linked account</p>
+                <small>Sep 18, 2019 • 10:50 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar-check icon"></i>
+            <div class="content">
+                <p>Recurring payment schedule updated</p>
+                <small>Sep 12, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-gift icon"></i>
+            <div class="content">
+                <p>$120.45 cashback reward credited</p>
+                <small>Sep 6, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bell icon"></i>
+            <div class="content">
+                <p>Low balance alert threshold changed</p>
+                <small>Aug 30, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Tax document available for download</p>
+                <small>Aug 24, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>Authorized account user added successfully</p>
+                <small>Aug 18, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Payment verification required for recent transaction</p>
+                <small>Aug 12, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$10,000.00 business loan payment processed</p>
+                <small>Aug 6, 2019 • 9:45 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-network-wired icon"></i>
+            <div class="content">
+                <p>Connected account successfully verified</p>
+                <small>Jul 29, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Banking platform improvements completed</p>
+                <small>Jul 20, 2019</small>
+            </div>
+        </div>
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$5,250.00 deposited into Business Advantage Checking</p>
+                <small>Dec 28, 2018 • 9:42 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$342.18 debit card purchase at Office Depot</p>
+                <small>Dec 24, 2018 • 2:15 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$7,500.00 wire transfer sent to vendor account</p>
+                <small>Dec 20, 2018 • 11:06 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Check deposit of $2,850.00 has been completed</p>
+                <small>Dec 17, 2018 • 10:22 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>New sign-in detected from Chrome on Windows</p>
+                <small>Dec 14, 2018 • 6:45 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bell icon"></i>
+            <div class="content">
+                <p>Low balance notification settings updated</p>
+                <small>Dec 10, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Automatic monthly payment processed successfully</p>
+                <small>Dec 5, 2018 • 8:00 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$12,000.00 ACH payment received from business client</p>
+                <small>Nov 29, 2018 • 1:33 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-mobile-screen icon"></i>
+            <div class="content">
+                <p>Mobile banking application updated successfully</p>
+                <small>Nov 24, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-gift icon"></i>
+            <div class="content">
+                <p>$95.40 cashback rewards credited to account</p>
+                <small>Nov 21, 2018 • 4:18 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-envelope icon"></i>
+            <div class="content">
+                <p>Your November 2018 account statement is ready</p>
+                <small>Nov 18, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-shield icon"></i>
+            <div class="content">
+                <p>Two-factor authentication successfully enabled</p>
+                <small>Nov 13, 2018 • 7:30 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Invoice payment reminder scheduled for upcoming due date</p>
+                <small>Nov 9, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Security profile information updated</p>
+                <small>Nov 4, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$1,750.00 cash withdrawal completed</p>
+                <small>Oct 30, 2018 • 12:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice-dollar icon"></i>
+            <div class="content">
+                <p>Business account service fee charged $25.00</p>
+                <small>Oct 27, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-plane icon"></i>
+            <div class="content">
+                <p>$680.00 travel card transaction approved</p>
+                <small>Oct 22, 2018 • 3:12 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Password updated successfully</p>
+                <small>Oct 18, 2018 • 9:05 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-chart-line icon"></i>
+            <div class="content">
+                <p>Business account monthly summary available</p>
+                <small>Oct 14, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$425.90 card purchase at Amazon Marketplace</p>
+                <small>Oct 9, 2018 • 5:26 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-arrow-up icon"></i>
+            <div class="content">
+                <p>$3,400.00 transfer received from connected account</p>
+                <small>Oct 4, 2018 • 10:14 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit successfully processed</p>
+                <small>Sep 28, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>New business debit card activated</p>
+                <small>Sep 21, 2018 • 1:40 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bell icon"></i>
+            <div class="content">
+                <p>Account alert preferences changed</p>
+                <small>Sep 16, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Receipt available for recent card transaction</p>
+                <small>Sep 10, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$9,800.00 business loan payment received</p>
+                <small>Sep 5, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>Authorized account user added successfully</p>
+                <small>Aug 29, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Tax document for 2018 became available</p>
+                <small>Aug 20, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield-halved icon"></i>
+            <div class="content">
+                <p>Fraud monitoring review completed</p>
+                <small>Aug 12, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Banking platform maintenance completed successfully</p>
+                <small>Aug 5, 2018</small>
+            </div>
+        </div>
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$4,750.00 direct deposit received into Business Checking Account</p>
+                <small>Dec 29, 2017 • 10:18 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Check deposit of $6,300.00 is now available</p>
+                <small>Dec 22, 2017 • 1:42 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$215.60 debit card transaction at OfficeMax</p>
+                <small>Dec 18, 2017 • 4:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$3,200.00 domestic transfer completed successfully</p>
+                <small>Dec 14, 2017 • 9:55 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>New account access detected from Internet Explorer</p>
+                <small>Dec 10, 2017 • 7:16 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bell icon"></i>
+            <div class="content">
+                <p>Account balance alert has been activated</p>
+                <small>Dec 6, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice icon"></i>
+            <div class="content">
+                <p>November account statement is ready for viewing</p>
+                <small>Nov 30, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Recurring vendor payment processed</p>
+                <small>Nov 24, 2017 • 8:30 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$15,000.00 ACH payment received from business partner</p>
+                <small>Nov 20, 2017 • 12:12 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$900.00 cash withdrawal completed at branch location</p>
+                <small>Nov 15, 2017 • 2:05 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-shield icon"></i>
+            <div class="content">
+                <p>Online banking security questions updated</p>
+                <small>Nov 10, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$389.45 card purchase at Best Buy</p>
+                <small>Nov 4, 2017 • 5:48 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-paper-plane icon"></i>
+            <div class="content">
+                <p>$2,750.00 wire transfer sent to supplier</p>
+                <small>Oct 28, 2017 • 11:30 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-mobile-screen icon"></i>
+            <div class="content">
+                <p>Mobile banking enrollment completed</p>
+                <small>Oct 21, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Electronic receipt generated for card transaction</p>
+                <small>Oct 15, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Payroll deposit successfully posted</p>
+                <small>Oct 9, 2017 • 9:20 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Fraud protection settings reviewed</p>
+                <small>Sep 30, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-car icon"></i>
+            <div class="content">
+                <p>$780.25 vehicle service payment completed</p>
+                <small>Sep 25, 2017 • 3:40 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar-check icon"></i>
+            <div class="content">
+                <p>Scheduled transfer reminder created</p>
+                <small>Sep 18, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking password changed successfully</p>
+                <small>Sep 12, 2017 • 6:22 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-percent icon"></i>
+            <div class="content">
+                <p>Interest payment of $42.18 credited to account</p>
+                <small>Sep 5, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-envelope icon"></i>
+            <div class="content">
+                <p>Your monthly financial summary is available</p>
+                <small>Aug 29, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-cart-shopping icon"></i>
+            <div class="content">
+                <p>$156.90 online purchase completed successfully</p>
+                <small>Aug 23, 2017 • 8:14 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>New authorized account user added</p>
+                <small>Aug 17, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Reminder: Business account verification required</p>
+                <small>Aug 10, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$8,500.00 loan payment processed</p>
+                <small>Aug 3, 2017 • 10:05 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-contract icon"></i>
+            <div class="content">
+                <p>Updated terms and conditions available</p>
+                <small>Jul 26, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-phone icon"></i>
+            <div class="content">
+                <p>Customer service request completed</p>
+                <small>Jul 18, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-bill-transfer icon"></i>
+            <div class="content">
+                <p>$1,450.00 internal account transfer completed</p>
+                <small>Jul 9, 2017 • 2:37 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Banking system maintenance completed</p>
+                <small>Jun 30, 2017</small>
+            </div>
+        </div>
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$3,900.00 payroll deposit credited to Business Checking</p>
+                <small>Dec 30, 2016 • 9:15 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Check deposit of $5,750.00 has been accepted</p>
+                <small>Dec 23, 2016 • 11:28 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$278.65 debit card purchase at Staples</p>
+                <small>Dec 19, 2016 • 3:42 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$4,600.00 bank transfer completed to external account</p>
+                <small>Dec 15, 2016 • 10:05 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>New online banking login detected</p>
+                <small>Dec 11, 2016 • 8:20 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bell icon"></i>
+            <div class="content">
+                <p>Account notification preferences updated</p>
+                <small>Dec 7, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice-dollar icon"></i>
+            <div class="content">
+                <p>Monthly service charge of $18.00 applied</p>
+                <small>Nov 30, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$9,200.00 ACH credit received from client payment</p>
+                <small>Nov 25, 2016 • 1:50 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$650.00 cash withdrawal completed at ATM</p>
+                <small>Nov 20, 2016 • 4:12 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-envelope icon"></i>
+            <div class="content">
+                <p>November account statement is now available</p>
+                <small>Nov 16, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Scheduled utility payment processed</p>
+                <small>Nov 10, 2016 • 7:45 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Security review completed for your account</p>
+                <small>Nov 5, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$425.30 card payment at Target</p>
+                <small>Oct 29, 2016 • 6:30 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-paper-plane icon"></i>
+            <div class="content">
+                <p>$6,800.00 wire transfer sent successfully</p>
+                <small>Oct 24, 2016 • 12:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-mobile-screen icon"></i>
+            <div class="content">
+                <p>Mobile banking access was activated</p>
+                <small>Oct 18, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Transaction receipt available for recent purchase</p>
+                <small>Oct 13, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit successfully posted</p>
+                <small>Oct 7, 2016 • 9:10 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking access password updated</p>
+                <small>Sep 30, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-car icon"></i>
+            <div class="content">
+                <p>$560.75 vehicle insurance payment completed</p>
+                <small>Sep 24, 2016 • 2:35 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar-check icon"></i>
+            <div class="content">
+                <p>Automatic transfer scheduled for next month</p>
+                <small>Sep 18, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-percent icon"></i>
+            <div class="content">
+                <p>$36.90 interest earned on account balance</p>
+                <small>Sep 12, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shopping-cart icon"></i>
+            <div class="content">
+                <p>$189.99 online purchase completed</p>
+                <small>Sep 6, 2016 • 5:20 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-shield icon"></i>
+            <div class="content">
+                <p>Additional account verification completed</p>
+                <small>Aug 29, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$7,250.00 business loan installment processed</p>
+                <small>Aug 22, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Annual account summary document available</p>
+                <small>Aug 15, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>New authorized signer added to account</p>
+                <small>Aug 8, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Pending payment requires account review</p>
+                <small>Jul 30, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-exchange icon"></i>
+            <div class="content">
+                <p>$1,900.00 internal account transfer completed</p>
+                <small>Jul 22, 2016 • 3:05 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-phone icon"></i>
+            <div class="content">
+                <p>Customer support request has been resolved</p>
+                <small>Jul 14, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Online banking maintenance completed successfully</p>
+                <small>Jun 28, 2016</small>
+            </div>
+        </div>
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$4,250.00 direct deposit posted to Business Checking Account</p>
+                <small>Dec 31, 2015 • 9:05 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Check deposit of $3,600.00 completed at branch</p>
+                <small>Dec 23, 2015 • 12:40 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$145.75 debit card purchase at Office Supply Store</p>
+                <small>Dec 18, 2015 • 2:18 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$2,900.00 account transfer completed successfully</p>
+                <small>Dec 14, 2015 • 10:32 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$11,500.00 commercial payment received through ACH</p>
+                <small>Dec 9, 2015 • 1:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>Online banking security credentials updated</p>
+                <small>Dec 4, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice icon"></i>
+            <div class="content">
+                <p>November monthly statement generated</p>
+                <small>Nov 30, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$800.00 cash withdrawal completed from ATM</p>
+                <small>Nov 24, 2015 • 5:15 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Monthly vendor payment processed</p>
+                <small>Nov 18, 2015 • 8:00 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-envelope icon"></i>
+            <div class="content">
+                <p>Your account statement has been mailed</p>
+                <small>Nov 12, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$320.40 card transaction at Walmart</p>
+                <small>Nov 6, 2015 • 6:42 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-paper-plane icon"></i>
+            <div class="content">
+                <p>$5,400.00 wire transfer sent to business recipient</p>
+                <small>Oct 29, 2015 • 11:18 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-signature icon"></i>
+            <div class="content">
+                <p>Business account agreement updated</p>
+                <small>Oct 23, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Transaction receipt requested and processed</p>
+                <small>Oct 17, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$6,700.00 loan repayment processed</p>
+                <small>Oct 11, 2015 • 10:20 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar icon"></i>
+            <div class="content">
+                <p>Scheduled payment reminder created</p>
+                <small>Oct 5, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-percent icon"></i>
+            <div class="content">
+                <p>$28.65 interest earned on checking balance</p>
+                <small>Sep 29, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-shield icon"></i>
+            <div class="content">
+                <p>Account identity verification completed</p>
+                <small>Sep 22, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-car icon"></i>
+            <div class="content">
+                <p>$475.00 vehicle payment deducted</p>
+                <small>Sep 16, 2015 • 3:50 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Payroll processing completed successfully</p>
+                <small>Sep 10, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-phone icon"></i>
+            <div class="content">
+                <p>Account service request completed</p>
+                <small>Sep 4, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-exchange icon"></i>
+            <div class="content">
+                <p>$1,650.00 transfer between accounts completed</p>
+                <small>Aug 28, 2015 • 2:12 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Fraud monitoring review completed</p>
+                <small>Aug 20, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Annual business account report available</p>
+                <small>Aug 14, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-cart-shopping icon"></i>
+            <div class="content">
+                <p>$210.85 retail purchase completed</p>
+                <small>Aug 8, 2015 • 4:30 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>New account contact information added</p>
+                <small>Aug 1, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Payment review required for recent transaction</p>
+                <small>Jul 25, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-bill icon"></i>
+            <div class="content">
+                <p>$1,200.00 cash deposit recorded at branch</p>
+                <small>Jul 18, 2015 • 11:45 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking password reset completed</p>
+                <small>Jul 10, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Bank account maintenance completed</p>
+                <small>Jun 29, 2015</small>
+            </div>
+        </div>
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$3,750.00 direct deposit credited to Business Checking Account</p>
+                <small>Dec 30, 2014 • 9:20 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Check deposit of $4,850.00 accepted and processing</p>
+                <small>Dec 22, 2014 • 11:35 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$198.35 debit card purchase at Office Supply Center</p>
+                <small>Dec 17, 2014 • 3:05 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$2,250.00 funds transfer completed between accounts</p>
+                <small>Dec 12, 2014 • 10:40 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$8,900.00 business payment received through bank transfer</p>
+                <small>Dec 8, 2014 • 1:15 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice icon"></i>
+            <div class="content">
+                <p>November account statement prepared and mailed</p>
+                <small>Dec 1, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>Online banking access information updated</p>
+                <small>Nov 25, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$600.00 cash withdrawal completed at ATM</p>
+                <small>Nov 19, 2014 • 4:50 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Recurring insurance payment processed</p>
+                <small>Nov 13, 2014 • 8:10 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-envelope icon"></i>
+            <div class="content">
+                <p>Your monthly statement is available for review</p>
+                <small>Nov 7, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$275.60 card payment at department store</p>
+                <small>Oct 31, 2014 • 5:22 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-paper-plane icon"></i>
+            <div class="content">
+                <p>$4,500.00 wire transfer sent to supplier account</p>
+                <small>Oct 24, 2014 • 12:30 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-signature icon"></i>
+            <div class="content">
+                <p>Business account documents updated</p>
+                <small>Oct 18, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Payment receipt generated for recent transaction</p>
+                <small>Oct 12, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$5,900.00 business loan payment completed</p>
+                <small>Oct 6, 2014 • 10:45 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar-check icon"></i>
+            <div class="content">
+                <p>Scheduled account payment reminder created</p>
+                <small>Sep 29, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-percent icon"></i>
+            <div class="content">
+                <p>$22.40 interest earned on account balance</p>
+                <small>Sep 22, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-shield icon"></i>
+            <div class="content">
+                <p>Account verification completed successfully</p>
+                <small>Sep 16, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-car icon"></i>
+            <div class="content">
+                <p>$420.00 vehicle finance payment deducted</p>
+                <small>Sep 10, 2014 • 2:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Payroll deposit processed successfully</p>
+                <small>Sep 4, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-phone icon"></i>
+            <div class="content">
+                <p>Customer account inquiry resolved</p>
+                <small>Aug 28, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-exchange icon"></i>
+            <div class="content">
+                <p>$1,350.00 internal account transfer completed</p>
+                <small>Aug 21, 2014 • 3:20 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Account security review completed</p>
+                <small>Aug 15, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-folder-open icon"></i>
+            <div class="content">
+                <p>Archived transaction records updated</p>
+                <small>Aug 8, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-cart-shopping icon"></i>
+            <div class="content">
+                <p>$165.90 retail purchase approved</p>
+                <small>Aug 2, 2014 • 6:18 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>Additional account contact added</p>
+                <small>Jul 26, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Transaction verification required</p>
+                <small>Jul 19, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-bill icon"></i>
+            <div class="content">
+                <p>$950.00 cash deposit recorded at branch</p>
+                <small>Jul 12, 2014 • 11:10 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking password reset completed</p>
+                <small>Jul 5, 2014</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Bank account maintenance completed</p>
+                <small>Jun 27, 2014</small>
+            </div>
+        </div>
+
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$3,200.00 payroll deposit credited to Business Checking Account</p>
+                <small>Dec 30, 2013 • 9:10 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Check deposit of $2,950.00 received at branch</p>
+                <small>Dec 23, 2013 • 12:05 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$125.40 debit card purchase at local retailer</p>
+                <small>Dec 18, 2013 • 4:32 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$1,850.00 account transfer completed</p>
+                <small>Dec 13, 2013 • 10:20 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$7,600.00 business payment received</p>
+                <small>Dec 9, 2013 • 1:40 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice icon"></i>
+            <div class="content">
+                <p>November paper statement has been prepared</p>
+                <small>Dec 2, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-university icon"></i>
+            <div class="content">
+                <p>Branch deposit transaction completed successfully</p>
+                <small>Nov 26, 2013 • 11:30 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$500.00 ATM cash withdrawal completed</p>
+                <small>Nov 20, 2013 • 3:45 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Monthly utility payment processed</p>
+                <small>Nov 14, 2013 • 8:00 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-envelope icon"></i>
+            <div class="content">
+                <p>Monthly account statement sent by mail</p>
+                <small>Nov 8, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$240.75 card purchase approved at retail store</p>
+                <small>Nov 2, 2013 • 5:18 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-paper-plane icon"></i>
+            <div class="content">
+                <p>$3,750.00 wire transfer issued to recipient</p>
+                <small>Oct 27, 2013 • 11:25 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Transaction receipt requested from branch</p>
+                <small>Oct 21, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$4,800.00 loan installment payment posted</p>
+                <small>Oct 15, 2013 • 10:12 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar icon"></i>
+            <div class="content">
+                <p>Scheduled payment instruction created</p>
+                <small>Oct 9, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-percent icon"></i>
+            <div class="content">
+                <p>$18.25 interest credited to account</p>
+                <small>Sep 30, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>Online banking security information updated</p>
+                <small>Sep 24, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-car icon"></i>
+            <div class="content">
+                <p>$390.00 vehicle finance payment deducted</p>
+                <small>Sep 18, 2013 • 2:20 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit successfully posted</p>
+                <small>Sep 12, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-phone icon"></i>
+            <div class="content">
+                <p>Bank representative completed account request</p>
+                <small>Sep 6, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-exchange icon"></i>
+            <div class="content">
+                <p>$1,100.00 transfer between accounts completed</p>
+                <small>Aug 30, 2013 • 3:35 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Account fraud monitoring review completed</p>
+                <small>Aug 23, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-folder icon"></i>
+            <div class="content">
+                <p>Archived account documents updated</p>
+                <small>Aug 17, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-cart-shopping icon"></i>
+            <div class="content">
+                <p>$98.60 debit card purchase completed</p>
+                <small>Aug 11, 2013 • 6:05 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>New authorized account representative added</p>
+                <small>Aug 5, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Account verification required for transaction</p>
+                <small>Jul 29, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-bill icon"></i>
+            <div class="content">
+                <p>$750.00 cash deposit recorded by teller</p>
+                <small>Jul 22, 2013 • 11:45 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking access password changed</p>
+                <small>Jul 15, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Annual account summary statement prepared</p>
+                <small>Jul 8, 2013</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Routine account maintenance completed</p>
+                <small>Jun 28, 2013</small>
+            </div>
+        </div>
+
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$2,850.00 payroll deposit credited to Business Checking Account</p>
+                <small>Dec 31, 2012 • 9:05 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Check deposit of $3,400.00 accepted by teller</p>
+                <small>Dec 21, 2012 • 11:20 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$6,900.00 business payment credited to account</p>
+                <small>Dec 17, 2012 • 1:35 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$112.45 debit card purchase completed</p>
+                <small>Dec 12, 2012 • 4:50 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$1,500.00 transfer between accounts processed</p>
+                <small>Dec 7, 2012 • 10:15 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice icon"></i>
+            <div class="content">
+                <p>November account statement printed and mailed</p>
+                <small>Dec 1, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-university icon"></i>
+            <div class="content">
+                <p>Branch cash deposit of $1,200.00 completed</p>
+                <small>Nov 26, 2012 • 12:10 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$400.00 ATM withdrawal completed</p>
+                <small>Nov 20, 2012 • 5:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Monthly service payment processed</p>
+                <small>Nov 14, 2012 • 8:30 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-envelope icon"></i>
+            <div class="content">
+                <p>Monthly paper statement dispatched</p>
+                <small>Nov 8, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$185.90 debit card transaction approved</p>
+                <small>Nov 2, 2012 • 6:12 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-paper-plane icon"></i>
+            <div class="content">
+                <p>$4,200.00 wire transfer completed</p>
+                <small>Oct 27, 2012 • 11:45 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Transaction receipt issued at branch</p>
+                <small>Oct 21, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$3,900.00 business loan repayment processed</p>
+                <small>Oct 15, 2012 • 10:30 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar-check icon"></i>
+            <div class="content">
+                <p>Scheduled payment instruction confirmed</p>
+                <small>Oct 9, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-percent icon"></i>
+            <div class="content">
+                <p>$15.75 interest credited to checking account</p>
+                <small>Sep 30, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>Online banking access information updated</p>
+                <small>Sep 24, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-car icon"></i>
+            <div class="content">
+                <p>$350.00 vehicle payment deducted</p>
+                <small>Sep 18, 2012 • 2:40 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit transaction completed</p>
+                <small>Sep 12, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-phone icon"></i>
+            <div class="content">
+                <p>Account inquiry handled by customer service</p>
+                <small>Sep 6, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-exchange icon"></i>
+            <div class="content">
+                <p>$950.00 account transfer completed</p>
+                <small>Aug 30, 2012 • 3:15 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Account security review completed</p>
+                <small>Aug 23, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-folder-open icon"></i>
+            <div class="content">
+                <p>Account records updated and archived</p>
+                <small>Aug 17, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-cart-shopping icon"></i>
+            <div class="content">
+                <p>$75.25 retail card purchase completed</p>
+                <small>Aug 11, 2012 • 5:40 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>New account contact information added</p>
+                <small>Aug 5, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Transaction review requested by bank</p>
+                <small>Jul 29, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-bill icon"></i>
+            <div class="content">
+                <p>$600.00 cash deposit recorded by teller</p>
+                <small>Jul 22, 2012 • 11:55 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking password reset completed</p>
+                <small>Jul 15, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Annual account summary prepared</p>
+                <small>Jul 8, 2012</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Routine account maintenance completed</p>
+                <small>Jun 29, 2012</small>
+            </div>
+        </div>
+
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$2,600.00 payroll deposit credited to Business Checking Account</p>
+                <small>Dec 30, 2011 • 9:12 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Check deposit of $2,750.00 received and pending clearance</p>
+                <small>Dec 22, 2011 • 11:05 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-university icon"></i>
+            <div class="content">
+                <p>$1,000.00 cash deposit completed at branch teller</p>
+                <small>Dec 18, 2011 • 2:30 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$95.80 debit card transaction approved</p>
+                <small>Dec 13, 2011 • 4:15 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$1,250.00 account transfer completed</p>
+                <small>Dec 8, 2011 • 10:25 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice icon"></i>
+            <div class="content">
+                <p>November bank statement printed and mailed</p>
+                <small>Dec 2, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$5,400.00 business payment received</p>
+                <small>Nov 25, 2011 • 1:20 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$350.00 ATM cash withdrawal completed</p>
+                <small>Nov 19, 2011 • 5:10 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Monthly insurance payment processed</p>
+                <small>Nov 14, 2011 • 8:05 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-envelope icon"></i>
+            <div class="content">
+                <p>Account statement delivered by mail</p>
+                <small>Nov 8, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$132.60 debit card purchase completed</p>
+                <small>Nov 2, 2011 • 6:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-paper-plane icon"></i>
+            <div class="content">
+                <p>$3,100.00 wire transfer sent to recipient</p>
+                <small>Oct 27, 2011 • 11:15 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Transaction receipt requested from branch</p>
+                <small>Oct 21, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$2,800.00 loan payment posted successfully</p>
+                <small>Oct 15, 2011 • 10:10 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar icon"></i>
+            <div class="content">
+                <p>Scheduled payment instruction added</p>
+                <small>Oct 9, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-percent icon"></i>
+            <div class="content">
+                <p>$12.40 interest credited to account</p>
+                <small>Sep 30, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>Online banking access details updated</p>
+                <small>Sep 24, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-car icon"></i>
+            <div class="content">
+                <p>$290.00 vehicle finance payment deducted</p>
+                <small>Sep 18, 2011 • 2:35 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit successfully posted</p>
+                <small>Sep 12, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-phone icon"></i>
+            <div class="content">
+                <p>Customer service request completed</p>
+                <small>Sep 6, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-exchange icon"></i>
+            <div class="content">
+                <p>$850.00 transfer between accounts completed</p>
+                <small>Aug 30, 2011 • 3:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Account security check completed</p>
+                <small>Aug 23, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-folder icon"></i>
+            <div class="content">
+                <p>Archived account records updated</p>
+                <small>Aug 17, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-cart-shopping icon"></i>
+            <div class="content">
+                <p>$68.40 retail purchase approved</p>
+                <small>Aug 11, 2011 • 5:35 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>New authorized account contact added</p>
+                <small>Aug 5, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Transaction verification required</p>
+                <small>Jul 29, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-bill icon"></i>
+            <div class="content">
+                <p>$450.00 cash deposit recorded at teller counter</p>
+                <small>Jul 22, 2011 • 11:40 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking password reset completed</p>
+                <small>Jul 15, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Annual account statement prepared</p>
+                <small>Jul 8, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Routine account maintenance completed</p>
+                <small>Jun 28, 2011</small>
+            </div>
+        </div>
+
+        <div class="notification unread">
+            <i class="fa fa-arrow-down icon"></i>
+            <div class="content">
+                <p>$2,450.00 payroll deposit credited to Business Checking Account</p>
+                <small>Dec 31, 2010 • 9:00 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-check icon"></i>
+            <div class="content">
+                <p>Check deposit of $2,200.00 received for processing</p>
+                <small>Dec 23, 2010 • 11:15 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-university icon"></i>
+            <div class="content">
+                <p>$850.00 cash deposit completed at branch teller</p>
+                <small>Dec 18, 2010 • 2:45 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-credit-card icon"></i>
+            <div class="content">
+                <p>$86.25 debit card purchase approved</p>
+                <small>Dec 14, 2010 • 4:20 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-right-left icon"></i>
+            <div class="content">
+                <p>$1,100.00 transfer between accounts completed</p>
+                <small>Dec 9, 2010 • 10:35 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file-invoice icon"></i>
+            <div class="content">
+                <p>November account statement printed and mailed</p>
+                <small>Dec 3, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-building-columns icon"></i>
+            <div class="content">
+                <p>$4,800.00 business payment received through bank transfer</p>
+                <small>Nov 26, 2010 • 1:10 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-wallet icon"></i>
+            <div class="content">
+                <p>$300.00 ATM withdrawal completed</p>
+                <small>Nov 20, 2010 • 5:05 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-repeat icon"></i>
+            <div class="content">
+                <p>Monthly insurance payment deducted</p>
+                <small>Nov 14, 2010 • 8:15 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-envelope icon"></i>
+            <div class="content">
+                <p>Monthly paper statement sent by mail</p>
+                <small>Nov 8, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-store icon"></i>
+            <div class="content">
+                <p>$74.90 debit card transaction completed</p>
+                <small>Nov 2, 2010 • 6:10 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-paper-plane icon"></i>
+            <div class="content">
+                <p>$2,750.00 wire transfer issued successfully</p>
+                <small>Oct 27, 2010 • 11:25 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-receipt icon"></i>
+            <div class="content">
+                <p>Transaction receipt provided by branch</p>
+                <small>Oct 21, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-bank icon"></i>
+            <div class="content">
+                <p>$2,400.00 loan installment payment processed</p>
+                <small>Oct 15, 2010 • 10:05 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-calendar icon"></i>
+            <div class="content">
+                <p>Scheduled payment instruction confirmed</p>
+                <small>Oct 9, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-percent icon"></i>
+            <div class="content">
+                <p>$10.80 interest credited to savings balance</p>
+                <small>Sep 30, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-lock icon"></i>
+            <div class="content">
+                <p>Online banking security details updated</p>
+                <small>Sep 24, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-car icon"></i>
+            <div class="content">
+                <p>$250.00 vehicle payment deducted</p>
+                <small>Sep 18, 2010 • 2:15 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-check icon"></i>
+            <div class="content">
+                <p>Direct deposit transaction completed</p>
+                <small>Sep 12, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-phone icon"></i>
+            <div class="content">
+                <p>Account service request completed by bank representative</p>
+                <small>Sep 6, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-exchange icon"></i>
+            <div class="content">
+                <p>$700.00 internal account transfer completed</p>
+                <small>Aug 30, 2010 • 3:10 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-shield icon"></i>
+            <div class="content">
+                <p>Account review completed successfully</p>
+                <small>Aug 23, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-folder icon"></i>
+            <div class="content">
+                <p>Archived account documents updated</p>
+                <small>Aug 17, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-cart-shopping icon"></i>
+            <div class="content">
+                <p>$52.30 retail card purchase approved</p>
+                <small>Aug 11, 2010 • 5:25 PM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-user-plus icon"></i>
+            <div class="content">
+                <p>Account contact information updated</p>
+                <small>Aug 5, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-exclamation icon"></i>
+            <div class="content">
+                <p>Transaction verification requested by bank</p>
+                <small>Jul 29, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-money-bill icon"></i>
+            <div class="content">
+                <p>$400.00 cash deposit recorded at teller counter</p>
+                <small>Jul 22, 2010 • 11:30 AM</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-key icon"></i>
+            <div class="content">
+                <p>Online banking password reset completed</p>
+                <small>Jul 15, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-file icon"></i>
+            <div class="content">
+                <p>Annual account summary statement prepared</p>
+                <small>Jul 8, 2010</small>
+            </div>
+        </div>
+
+        <div class="notification">
+            <i class="fa fa-circle-info icon"></i>
+            <div class="content">
+                <p>Routine account maintenance completed</p>
+                <small>Jun 28, 2010</small>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const container = document.getElementById("notificationList");
+
+        // Get saved transactions
+        let savedTxns = JSON.parse(localStorage.getItem("transactions")) || [];
+
+        // Format time ago
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+
+            let interval = seconds / 60;
+            if (interval < 1) return "Just now";
+            if (interval < 60) return Math.floor(interval) + " minutes ago";
+
+            interval = interval / 60;
+            if (interval < 24) return Math.floor(interval) + " hours ago";
+
+            interval = interval / 24;
+            return Math.floor(interval) + " days ago";
+        }
+
+        // Create notification element
+        function createNotification(txn) {
+            const div = document.createElement("div");
+            div.classList.add("notification", "unread");
+
+            const isCredit = txn.type === "Completed";
+
+            div.innerHTML = `
+        <i class="fa ${isCredit ? "fa-arrow-down" : "fa-arrow-up"} icon"></i>
+        <div class="content">
+            <p>
+                ${isCredit
+                    ? "$" + txn.amount.toLocaleString() + " received"
+                    : "$" + txn.amount.toLocaleString() + " sent"}
+                (${txn.name})
+            </p>
+            <small>${timeAgo(txn.date)} • ${txn.type}</small>
+        </div>
+    `;
+
+            return div;
+        }
+
+        // Insert ALL transactions at the top
+        savedTxns.reverse().forEach(txn => {
+            const notif = createNotification(txn);
+            container.insertBefore(notif, container.firstChild);
+        });
+    </script>
+
+    <script src="../main.js"></script>
+
+</body>
+
+</html>

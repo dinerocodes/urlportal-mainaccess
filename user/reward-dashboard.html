@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Preferred Rewards</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+
+    <style>
+        :root {
+            --b-red: #c41230;
+            --b-blue: #0052a5;
+            --text: #111;
+            --muted: #6d6d6d;
+            --border: #e5e5e5;
+            --bg: #f3f3f3;
+        }
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+
+        body {
+            background: var(--bg);
+            padding-bottom: 75px;
+        }
+
+
+        /* TOP BAR */
+
+        .topbar {
+
+            background: white;
+            border-bottom: 1px solid var(--border);
+
+        }
+
+
+        .top-icons {
+
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 14px;
+
+        }
+
+
+        .top-icons i {
+
+            font-size: 18px;
+
+        }
+
+
+        .tabs {
+
+            display: flex;
+            padding-left: 14px;
+
+        }
+
+
+        .tab {
+
+            padding: 10px 14px;
+            color: var(--muted);
+            font-size: 14px;
+
+        }
+
+
+        .tab.active {
+
+            color: var(--b-red);
+            border-bottom: 3px solid var(--b-red);
+            font-weight: 600;
+
+        }
+
+
+
+        /* CARD */
+
+        .card {
+
+            background: white;
+            margin: 10px 12px;
+            padding: 15px;
+            border-radius: 12px;
+
+        }
+
+
+        .card-head {
+
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+
+        }
+
+
+        .card p {
+
+            margin-top: 7px;
+            font-size: 13px;
+            color: var(--muted);
+
+        }
+
+
+
+        /* REWARD LEVEL */
+
+        .reward-card {
+
+            background: white;
+            margin: 10px 12px;
+            border-radius: 12px;
+            overflow: hidden;
+
+        }
+
+
+        .reward-header {
+
+            height: 6px;
+            background: linear-gradient(to right, #c41230, #0052a5);
+
+        }
+
+
+        .reward-body {
+
+            padding: 18px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+        }
+
+
+        .reward-body h2 {
+
+            font-size: 22px;
+
+        }
+
+
+        .reward-body p {
+
+            color: var(--muted);
+            font-size: 13px;
+
+        }
+
+
+        .reward-icon {
+
+            width: 55px;
+            height: 55px;
+            background: #0052a5;
+            color: white;
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 25px;
+
+        }
+
+
+
+        /* SECTION */
+
+        .section {
+
+            background: white;
+            margin: 10px 12px;
+            border-radius: 10px;
+            overflow: hidden;
+
+        }
+
+
+        .section-title {
+
+            padding: 14px;
+            font-weight: 700;
+
+        }
+
+
+        .row {
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 13px 14px;
+
+            border-top: 1px solid #eee;
+
+        }
+
+
+        .row-left {
+
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+        }
+
+
+        .row-left i {
+
+            color: #0052a5;
+
+        }
+
+
+        .row-left small {
+
+            display: block;
+            color: var(--muted);
+
+        }
+
+
+        .amount {
+
+            font-weight: 600;
+
+        }
+
+
+
+        /* ACTIVITY */
+
+
+        .activity-icon {
+
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #f1f5ff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #0052a5;
+
+        }
+
+
+
+        /* BOTTOM */
+
+
+        .bottom {
+
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            border-top: 1px solid var(--border);
+            display: flex;
+
+        }
+
+
+        .nav {
+
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            padding: 8px 0;
+            color: var(--muted);
+            text-decoration: none;
+
+        }
+
+
+        .nav i {
+
+            display: block;
+            font-size: 18px;
+            margin-bottom: 4px;
+
+        }
+
+
+        .nav.active {
+
+            color: var(--b-blue);
+
+        }
+
+        .session-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+
+        .session-box {
+
+            width: 350px;
+            background: rgba(45, 45, 45, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+
+            color: white;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, .3);
+
+            animation: sessionShow .3s ease;
+
+        }
+
+
+        .session-box h3 {
+
+            font-size: 18px;
+            margin-bottom: 12px;
+
+        }
+
+
+        .session-box p {
+
+            color: #ddd;
+            font-size: 15px;
+            line-height: 1.5;
+
+        }
+
+
+        .session-box button {
+
+            width: 100%;
+            margin-top: 20px;
+            background: none;
+            text-align: right;
+            color: rgb(76, 78, 192);
+            border: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+
+        }
+
+
+
+        @keyframes sessionShow {
+
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+    </style>
+
+
+</head>
+
+
+<body>
+
+    <div class="session-popup" id="sessionPopup">
+        <div class="session-box">
+            <h3>
+                Session Timeout Warning
+            </h3>
+            <p>
+                Your online banking session will end in 2 minutes.
+                If you are still working in your online banking session,
+                choose OK to continue.
+            </p>
+            <button onclick="continueSession()">
+                OK
+            </button>
+        </div>
+
+    </div>
+    <div class="topbar">
+
+        <div class="top-icons">
+
+            <i class="fa fa-bars"></i>
+
+
+            <div>
+
+                <a href="./notification.html">
+                    <i class="fa fa-envelope"></i>
+                </a>
+
+
+                <a href="../login.html">
+                    <i class="fa fa-right-from-bracket"></i>
+                </a>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="tabs">
+
+            <div class="tab active">
+                Rewards
+            </div>
+
+            <a href="./dashboard.html" style="text-decoration:none">
+
+                <div class="tab">
+                    Dashboard
+                </div>
+
+            </a>
+
+            <a href="./account.html" style="text-decoration:none">
+
+                <div class="tab">
+                    Accounts
+                </div>
+
+            </a>
+
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+    <div class="card">
+
+
+        <div class="card-head">
+
+            <span>
+                William Brooks
+            </span>
+
+
+            <i class="fa fa-chevron-right"></i>
+
+
+        </div>
+
+
+        <p>
+            Preferred Rewards for Business member since Mar 2016
+        </p>
+
+
+    </div>
+
+
+
+
+
+
+    <div class="reward-card">
+
+        <div class="reward-header"></div>
+
+
+        <div class="reward-body">
+
+
+            <div>
+
+                <small>
+                    Membership Level
+                </small>
+
+
+                <h2>
+                    Gold Rewards
+                </h2>
+
+
+                <p>
+                    Active since March 2020
+                </p>
+
+
+            </div>
+
+
+            <div class="reward-icon">
+
+                <i class="fa fa-award"></i>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+
+    <div class="section">
+
+
+        <div class="section-title">
+            Rewards Summary
+        </div>
+
+
+        <div class="row">
+
+            <div class="row-left">
+
+                <i class="fa fa-wallet"></i>
+
+                <div>
+
+                    <small>
+                        Cashback Earned
+                    </small>
+
+                    <p>
+                        $1,245.80
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+
+        <div class="row">
+
+
+            <div class="row-left">
+
+                <i class="fa fa-star"></i>
+
+                <div>
+
+                    <small>
+                        Reward Points
+                    </small>
+
+                    <p>
+                        18,450 Points
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+        <div class="row">
+
+            <div class="row-left">
+
+                <i class="fa fa-chart-line"></i>
+
+                <div>
+
+                    <small>
+                        Reward Rate
+                    </small>
+
+                    <p>
+                        5% Cashback
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="section">
+
+
+        <div class="section-title">
+            Recent Rewards Activity
+        </div>
+
+
+
+        <div class="row">
+
+
+            <div class="row-left">
+
+
+                <div class="activity-icon">
+
+                    <i class="fa fa-gift"></i>
+
+                </div>
+
+
+                <div>
+
+                    <small>
+                        Dec 18, 2022
+                    </small>
+
+                    <p>
+                        Cashback reward posted
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="amount">
+                +$1,182.45
+            </div>
+
+
+        </div>
+
+
+
+
+
+        <div class="row">
+
+
+            <div class="row-left">
+
+
+                <div class="activity-icon">
+
+                    <i class="fa fa-star"></i>
+
+                </div>
+
+
+                <div>
+
+                    <small>
+                        Nov 25, 2022
+                    </small>
+
+                    <p>
+                        Bonus points earned
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="amount">
+                +1,250
+            </div>
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+    <div class="section">
+
+
+        <div class="section-title">
+            Benefits
+        </div>
+
+
+
+        <div class="row">
+
+            <div class="row-left">
+
+                <i class="fa fa-check-circle"></i>
+
+                <p>
+                    Higher cashback rewards
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="row">
+
+            <div class="row-left">
+
+                <i class="fa fa-check-circle"></i>
+
+                <p>
+                    Reduced banking fees
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="row">
+
+            <div class="row-left">
+
+                <i class="fa fa-check-circle"></i>
+
+                <p>
+                    Enhanced account protection
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <div class="bottom">
+
+
+        <a class="nav active">
+            <i class="fa fa-award"></i>
+            Rewards
+        </a>
+
+
+        <a href="./account.html" class="nav">
+
+            <i class="fa fa-wallet"></i>
+            Accounts
+
+        </a>
+
+
+        <a href="./pay.html" class="nav">
+
+            <i class="fa fa-arrow-right-arrow-left"></i>
+            Pay
+
+        </a>
+
+
+        <a href="./setting.html" class="nav">
+
+            <i class="fa fa-gear"></i>
+            Settings
+
+        </a>
+
+
+    </div>
+
+
+    <script src="../main.js"></script>
+</body>
+
+</html>

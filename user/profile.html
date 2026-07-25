@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Information</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        :root {
+            --b-blue: #0052a5;
+            --b-red: #c41230;
+            --text: #111;
+            --muted: #6d6d6d;
+            --border: #e6e6e6;
+            --bg: #f4f6f8;
+            --card: #ffffff;
+        }
+
+        /* RESET */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ===== HEADER ===== */
+
+        .page-header {
+            position: sticky;
+            top: 0;
+            background: var(--card);
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .page-header i {
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            font-size: 14px;
+            color: var(--b-blue);
+            cursor: pointer;
+        }
+
+        /* ===== SECTION ===== */
+
+        .section {
+            background: var(--card);
+            margin: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+        }
+
+        .section-header {
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            background: #fafafa;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        /* ===== FIELD ===== */
+
+        .field {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .field:last-child {
+            border-bottom: none;
+        }
+
+        .field label {
+            font-size: 12px;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .field p {
+            font-size: 14px;
+        }
+
+        /* ===== NOTE ===== */
+
+        .note {
+            font-size: 12px;
+            color: var(--muted);
+            padding: 0 16px 16px;
+        }
+
+        /* ===== DESKTOP ===== */
+
+        @media (min-width: 768px) {
+            body {
+                max-width: 420px;
+                margin: auto;
+            }
+        }
+
+        .session-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+
+        .session-box {
+
+            width: 350px;
+            background: rgba(45, 45, 45, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+
+            color: white;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, .3);
+
+            animation: sessionShow .3s ease;
+
+        }
+
+
+        .session-box h3 {
+
+            font-size: 18px;
+            margin-bottom: 12px;
+
+        }
+
+
+        .session-box p {
+
+            color: #ddd;
+            font-size: 15px;
+            line-height: 1.5;
+
+        }
+
+
+        .session-box button {
+
+            width: 100%;
+            margin-top: 20px;
+            background: none;
+            text-align: right;
+            color: rgb(76, 78, 192);
+            border: none;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+
+        }
+
+
+
+        @keyframes sessionShow {
+
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <i class="fa fa-arrow-left" onclick="history.back()"></i>
+            <span>Personal Information</span>
+        </div>
+        <span class="edit-btn" onclick="editInfo()">Edit</span>
+    </div>
+
+    <!-- BASIC INFO -->
+    <div class="section">
+        <div class="section-header">Basic information</div>
+
+        <div class="field">
+            <label>Full name</label>
+            <p>William Brooks</p>
+        </div>
+
+        <div class="field">
+            <label>Date of birth</label>
+            <p>12-15-1947</p>
+        </div>
+    </div>
+
+    <div class="session-popup" id="sessionPopup">
+        <div class="session-box">
+            <h3>
+                Session Timeout Warning
+            </h3>
+            <p>
+                Your online banking session will end in 2 minutes.
+                If you are still working in your online banking session,
+                choose OK to continue.
+            </p>
+            <button onclick="continueSession()">
+                OK
+            </button>
+        </div>
+
+    </div>
+
+    <!-- CONTACT INFO -->
+    <div class="section">
+        <div class="section-header">Contact information</div>
+
+        <div class="field">
+            <label>Email address</label>
+            <p>wbrooks.builders@yahoo.com</p>
+        </div>
+
+        <div class="field">
+            <label>Phone number</label>
+            <p>+1 (254) -446-6357</p>
+        </div>
+    </div>
+
+    <!-- ADDRESS -->
+    <div class="section">
+        <div class="section-header">Address</div>
+
+        <div class="field">
+            <label>Home address</label>
+            <p>2433 W Main Street
+                Apt 137
+                Mesa AZ 85201</p>
+        </div>
+    </div>
+
+    <div class="note">
+        To protect your account, some personal details can only be updated by contacting customer support.
+    </div>
+
+    <script>
+        function editInfo() {
+            alert("Something went wrong. Try again later...");
+        }
+    </script>
+
+    <script src="../main.js"></script>
+
+</body>
+
+</html>
